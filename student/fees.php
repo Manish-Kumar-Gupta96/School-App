@@ -1,0 +1,131 @@
+<?php
+// Redirect students as fees are now restricted to parent portal only
+header("Location: dashboard.php");
+exit;
+require_once('../config/database.php');
+require_once('includes/header.php');
+
+$student_id = $_SESSION['student_id'];
+
+/* ==========================
+FEE INVOICES
+========================== */
+$fees = [];
+$total_fee = 0;
+$total_paid = 0;
+$total_due = 0;
+
+$stmt = $pdo->prepare("
+    SELECT *
+    FROM fee_payments
+    WHERE student_id=?
+    ORDER BY id DESC
+");
+$stmt->execute([$student_id]);
+$fees = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+foreach($fees as $fee){
+    $total_fee += $fee['total_fee'];
+    $total_paid += $fee['paid_amount'];
+    $total_due += $fee['due_amount'];
+}
+
+// Layout configuration
+$active_menu = "fees";
+$page_title = "My Fee Invoices | VIC School";
+?>
+
+<div class="d-flex justify-content-between align-items-center mb-4 text-start">
+    <div>
+        <h2 class="fw-bold text-dark mb-1">My Fee Dues & Invoices</h2>
+        <p class="text-muted mb-0">Check your pending dues ledger and payment records</p>
+    </div>
+</div>
+
+<!-- METRIC COUNTERS -->
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm" style="border-radius: 12px; border-left: 4px solid #0d6efd !important;">
+            <div class="card-body text-start py-4 ps-4">
+                <h6 class="text-muted text-uppercase fw-bold" style="font-size: 0.75rem; letter-spacing: 1px;">Total Scheduled Fee</h6>
+                <h3 class="fw-bold mb-0 text-dark">₹ <?= number_format($total_fee, 2) ?></h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm" style="border-radius: 12px; border-left: 4px solid #198754 !important;">
+            <div class="card-body text-start py-4 ps-4">
+                <h6 class="text-muted text-uppercase fw-bold" style="font-size: 0.75rem; letter-spacing: 1px;">Total Paid Amount</h6>
+                <h3 class="fw-bold mb-0 text-success">₹ <?= number_format($total_paid, 2) ?></h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm" style="border-radius: 12px; border-left: 4px solid #dc3545 !important;">
+            <div class="card-body text-start py-4 ps-4">
+                <h6 class="text-muted text-uppercase fw-bold" style="font-size: 0.75rem; letter-spacing: 1px;">Pending Due Balance</h6>
+                <h3 class="fw-bold mb-0 text-danger">₹ <?= number_format($total_due, 2) ?></h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FEES LIST -->
+<div class="card shadow-sm border-0" style="border-radius: 15px; overflow: hidden;">
+    <div class="card-header bg-white border-0 py-3 ps-4 text-start">
+        <h5 class="fw-bold mb-0 text-dark">Invoice Ledgers</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 text-center">
+                <thead class="table-light text-start">
+                    <tr>
+                        <th class="ps-4">Receipt Ref.</th>
+                        <th>Fee Type</th>
+                        <th>Total Fee</th>
+                        <th>Paid Amount</th>
+                        <th>Pending Dues</th>
+                        <th>Due Date</th>
+                        <th>Payment Date</th>
+                        <th class="pe-4">Method</th>
+                    </tr>
+                </thead>
+                <tbody class="text-start">
+                    <?php if (count($fees) > 0): ?>
+                        <?php foreach($fees as $fee): ?>
+                            <tr>
+                                <td class="ps-4 fw-mono text-dark fw-bold small"><?= htmlspecialchars($fee['receipt_no']) ?></td>
+                                <td class="fw-semibold text-muted"><?= htmlspecialchars($fee['fee_type']) ?></td>
+                                <td class="fw-semibold text-dark">₹ <?= number_format($fee['total_fee'], 2) ?></td>
+                                <td class="fw-bold text-success">₹ <?= number_format($fee['paid_amount'], 2) ?></td>
+                                <td class="fw-bold <?= $fee['due_amount'] > 0 ? 'text-danger' : 'text-muted' ?>">
+                                    ₹ <?= number_format($fee['due_amount'], 2) ?>
+                                </td>
+                                <td class="small text-muted"><?= date('d M Y', strtotime($fee['due_date'])) ?></td>
+                                <td class="small text-muted">
+                                    <?= $fee['payment_date'] ? date('d M Y', strtotime($fee['payment_date'])) : '<span class="text-danger">Unpaid</span>' ?>
+                                </td>
+                                <td class="pe-4">
+                                    <span class="badge bg-light text-secondary border px-2 py-1">
+                                        <?= htmlspecialchars($fee['payment_mode'] ?: 'N/A') ?>
+                                    </span>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <tr>
+                            <td colspan="8" class="text-center py-5 text-muted">
+                                <i class="fa fa-file-invoice fs-2 mb-2 d-block"></i>
+                                No fee invoice statements found.
+                            </td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<?php
+require_once('includes/footer.php');
+?>
