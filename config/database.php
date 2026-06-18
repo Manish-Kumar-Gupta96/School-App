@@ -1,9 +1,46 @@
 <?php
 
-$host = "localhost";
-$dbname = "vic_school";
-$username = "root";
-$password = "";
+// Function to load .env file if it exists
+function loadEnv($dir) {
+    $filePath = rtrim($dir, '/\\') . '/.env';
+    if (!file_exists($filePath)) {
+        return;
+    }
+    
+    $lines = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        $line = trim($line);
+        // Skip comments
+        if (strpos($line, '#') === 0 || empty($line)) {
+            continue;
+        }
+        
+        // Split name and value
+        if (strpos($line, '=') !== false) {
+            list($name, $value) = explode('=', $line, 2);
+            $name = trim($name);
+            $value = trim($value);
+            
+            // Remove quotes if present
+            $value = trim($value, '"\'');
+            
+            if (!array_key_exists($name, $_SERVER) && !array_key_exists($name, $_ENV)) {
+                putenv(sprintf('%s=%s', $name, $value));
+                $_ENV[$name] = $value;
+                $_SERVER[$name] = $value;
+            }
+        }
+    }
+}
+
+// Load environment variables from the project root
+loadEnv(dirname(__DIR__));
+
+// Set database credentials with .env values or fallback defaults
+$host = getenv('DB_HOST') ?: "localhost";
+$dbname = getenv('DB_NAME') ?: "vic_school";
+$username = getenv('DB_USER') ?: "root";
+$password = getenv('DB_PASSWORD') !== false ? getenv('DB_PASSWORD') : "";
 
 try {
 
