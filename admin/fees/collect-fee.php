@@ -84,6 +84,39 @@ if(isset($_POST['collect_fee'])){
         $status
     ]);
 
+    // Sync to fee_payments table for parent and student dashboards
+    try {
+        $fee_type = "Tuition Fee (" . $fee_month . ")";
+        $total_fee = ($amount + $fine) - $discount;
+        $stmt_sync = $pdo->prepare("
+            INSERT INTO fee_payments (
+                student_id,
+                fee_type,
+                total_fee,
+                paid_amount,
+                due_amount,
+                due_date,
+                payment_date,
+                payment_mode,
+                receipt_no
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ");
+        $stmt_sync->execute([
+            $student_id,
+            $fee_type,
+            $total_fee,
+            $paid_amount,
+            $due_amount,
+            $payment_date,
+            $payment_date,
+            $payment_method,
+            $receipt_no
+        ]);
+    } catch (PDOException $ex) {
+        // Log sync error but don't crash the main process
+        error_log("Fee sync error: " . $ex->getMessage());
+    }
+
     $fee_id = $pdo->lastInsertId();
     require_once('../includes/audit-helper.php');
     addAuditLog(

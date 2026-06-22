@@ -129,7 +129,7 @@ require_once('includes/header.php');
                                 <p class="text-muted small mb-3"><i class="fa fa-calendar-alt me-2"></i>Time: <?= date('d M Y, h:i A', strtotime($c['start_time'])) ?> to <?= date('h:i A', strtotime($c['end_time'])) ?></p>
 
                                 <?php if (!empty($c['meeting_link'])): ?>
-                                    <a href="<?= htmlspecialchars($c['meeting_link']) ?>" target="_blank" class="btn btn-primary w-100 py-2 fw-semibold" style="border-radius: 8px;">
+                                    <a href="join-class.php?class_id=<?= $c['id'] ?>" target="_blank" class="btn btn-primary w-100 py-2 fw-semibold" style="border-radius: 8px;">
                                         <i class="fa fa-arrow-up-right-from-square me-2"></i> Join Live Class
                                     </a>
                                 <?php endif; ?>
