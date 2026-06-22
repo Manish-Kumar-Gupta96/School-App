@@ -92,9 +92,10 @@ if($child){
                         <th>Total Fee</th>
                         <th>Paid Amount</th>
                         <th>Pending Dues</th>
-                        <th>Due Date</th>
+                         <th>Due Date</th>
                         <th>Payment Date</th>
-                        <th class="pe-4">Method</th>
+                        <th>Method</th>
+                        <th class="pe-4 text-center">Action</th>
                     </tr>
                 </thead>
                 <tbody class="text-start">
@@ -112,16 +113,25 @@ if($child){
                                 <td class="small text-muted">
                                     <?= $fee['payment_date'] ? date('d M Y', strtotime($fee['payment_date'])) : '<span class="text-danger">Unpaid</span>' ?>
                                 </td>
-                                <td class="pe-4">
+                                <td>
                                     <span class="badge bg-light text-secondary border px-2 py-1">
                                         <?= htmlspecialchars($fee['payment_mode'] ?: 'N/A') ?>
                                     </span>
+                                </td>
+                                <td class="pe-4 text-center">
+                                    <?php if ($fee['due_amount'] > 0): ?>
+                                        <a href="pay-fee.php?fee_id=<?= $fee['id'] ?>" class="btn btn-sm btn-primary fw-semibold" style="border-radius: 6px;">
+                                            <i class="fa fa-credit-card me-1"></i> Pay Online
+                                        </a>
+                                    <?php else: ?>
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1"><i class="fa fa-circle-check me-1"></i> Fully Paid</span>
+                                    <?php endif; ?>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="8" class="text-center py-5 text-muted">
+                            <td colspan="9" class="text-center py-5 text-muted">
                                 <i class="fa fa-file-invoice fs-2 mb-2 d-block"></i>
                                 No child fee invoice statements found.
                             </td>

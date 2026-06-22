@@ -50,7 +50,7 @@ try {
         SELECT oc.*, t.name AS teacher_name 
         FROM online_classes oc
         LEFT JOIN teachers t ON oc.teacher_id = t.id
-        WHERE oc.class_id = ? AND oc.section_id = ? AND oc.status != 'COMPLETED'
+        WHERE oc.class_id = ? AND oc.section_id = ? AND oc.status NOT IN ('completed', 'cancelled', 'COMPLETED')
         ORDER BY oc.start_time ASC
     ");
     $stmt_c->execute([$class_id, $section_id]);
@@ -109,16 +109,16 @@ require_once('includes/header.php');
                                     <div>
                                         <h6 class="fw-bold text-dark mb-1"><?= htmlspecialchars($c['title']) ?></h6>
                                         <span class="badge bg-secondary-subtle text-secondary small"><?= htmlspecialchars($c['subject'] ?: 'Subject') ?></span>
-                                        <?php if ($c['platform'] === 'ZOOM'): ?>
+                                        <?php if (strcasecmp($c['platform'] ?? '', 'ZOOM') === 0 || strcasecmp($c['meeting_provider'] ?? '', 'zoom') === 0): ?>
                                             <span class="badge bg-primary-subtle text-primary small"><i class="fa fa-video me-1"></i> Zoom</span>
-                                        <?php elseif ($c['platform'] === 'GOOGLE_MEET'): ?>
+                                        <?php elseif (strcasecmp($c['platform'] ?? '', 'GOOGLE_MEET') === 0 || strcasecmp($c['meeting_provider'] ?? '', 'google_meet') === 0): ?>
                                             <span class="badge bg-success-subtle text-success small"><i class="fa fa-calendar me-1"></i> Meet</span>
                                         <?php else: ?>
                                             <span class="badge bg-warning-subtle text-warning small"><i class="fa fa-circle-nodes me-1"></i> Jitsi</span>
                                         <?php endif; ?>
                                     </div>
                                     <div>
-                                        <?php if ($c['status'] === 'LIVE'): ?>
+                                        <?php if (strcasecmp($c['status'], 'LIVE') === 0): ?>
                                             <span class="badge bg-danger animate-pulse">LIVE NOW</span>
                                         <?php else: ?>
                                             <span class="badge bg-info">UPCOMING</span>

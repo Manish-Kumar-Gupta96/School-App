@@ -1,0 +1,259 @@
+﻿<USER_REQUEST>
+Module 1: Live Class System
+Database
+CREATE TABLE online_classes (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    teacher_id BIGINT NOT NULL,
+    class_id BIGINT NOT NULL,
+    section_id BIGINT NOT NULL,
+    subject_id BIGINT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT NULL,
+    meeting_provider ENUM('google_meet','zoom','jitsi') NOT NULL,
+    meeting_link TEXT NOT NULL,
+    start_time DATETIME NOT NULL,
+    end_time DATETIME NOT NULL,
+    status ENUM('scheduled','live','completed','cancelled') DEFAULT 'scheduled',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+Teacher Assignment Validation
+<?php
+
+function canTeacherCreateClass(
+    PDO $pdo,
+    int $teacherId,
+    int $classId,
+    int $sectionId,
+    int $subjectId
+): bool {
+
+    $stmt = $pdo->prepare("
+        SELECT id
+        FROM teacher_assignments
+        WHERE teacher_id = ?
+        AND class_id = ?
+        AND section_id = ?
+        AND subject_id = ?
+        LIMIT 1
+    ");
+
+    $stmt->execute([
+        $teacherId,
+        $classId,
+        $sectionId,
+        $subjectId
+    ]);
+
+    return $stmt->fetch() !== false;
+}
+Create Live Class API
+<?php
+
+require_once '../config/database.php';
+
+session_start();
+
+$teacherId = $_SESSION['teacher_id'];
+
+$classId   = (int)$_POST['class_id'];
+$sectionId = (int)$_POST['section_id'];
+$subjectId = (int)$_POST['subject_id'];
+
+if (!canTeacherCreateClass(
+    $pdo,
+    $teacherId,
+    $classId,
+    $sectionId,
+    $subjectId
+)) {
+    die('Access denied');
+}
+
+$stmt = $pdo->prepare("
+INSERT INTO online_classes(
+teacher_id,
+class_id,
+section_id,
+subject_id,
+title,
+meeting_provider,
+meeting_link,
+start_time,
+end_time
+)
+VALUES(?,?,?,?,?,?,?,?,?)
+");
+
+$stmt->execute([
+    $teacherId,
+    $classId,
+    $sectionId,
+    $subjectId,
+    $_POST['title'],
+    $_POST['provider'],
+    $_POST['meeting_link'],
+    $_POST['start_time'],
+    $_POST['end_time']
+]);
+
+echo json_encode([
+    'success' => true
+]);
+Student Upcoming Classes
+<?php
+
+$stmt = $pdo->prepare("
+SELECT *
+FROM online_classes
+WHERE
+<truncated 45216 bytes>
+MS
+6. AI Suite
+7. HRMS
+8. Transport
+9. Library
+10. Inventory
+11. Exams & Results
+12. Website CMS + SEO
+13. Mobile Apps, Module 15: Advanced Analytics, BI Dashboard & AI Decision Engine
+
+Ab tak ERP me operations, academics, communication, finance, HR, transport, inventory, mobile apps sab cover ho chuka hai.
+
+Ab school management ko data-driven decisions dene ke liye Analytics & Business Intelligence module add karte hain.
+
+Analytics Architecture
+All Modules
+    â†“
+Data Warehouse
+    â†“
+Analytics Engine
+    â†“
+AI Insights
+    â†“
+Executive Dashboard
+Data Sources
+Admissions CRM
+Students
+Attendance
+Fees
+Exams
+Transport
+Library
+HRMS
+Inventory
+Website
+Mobile Apps
+Communication Hub
+Dashboard Types
+Super Admin Dashboard
+Total Students
+
+Total Staff
+
+Total Revenue
+
+Pending Fees
+
+Admissions This Month
+
+Attendance %
+
+Exam Performance
+
+Website Visitors
+Principal Dashboard
+Academic Performance
+
+Teacher Performance
+
+Student Attendance
+
+Fee Collection
+
+Discipline Cases
+Accounts Dashboard
+Collected Fees
+
+Pending Fees
+
+Expenses
+
+Profit/Loss
+
+Payroll Cost
+HR Dashboard
+Staff Attendance
+
+Leave Trends
+
+Payroll Status
+
+Recruitment Pipeline
+Data Warehouse Tables
+analytics_daily_summary
+
+analytics_monthly_summary
+
+analytics_yearly_summary
+
+Example:
+
+CREATE TABLE analytics_daily_summary (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+
+    report_date DATE,
+
+    total_students INT,
+
+    total_attendance INT,
+
+    fee_collected DECIMAL(10,2),
+
+    new_admissions INT,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+Revenue Analytics
+
+Charts:
+
+Monthly Fee Collection
+
+Yearly Revenue
+
+Transport Revenue
+
+Admission Revenue
+
+Use:
+
+Chart.js
+ApexCharts
+Admission Analytics
+
+Track:
+
+Lead Sources
+
+Conversion %
+
+Cost Per Admission
+
+Top Campaigns
+
+Example:
+
+Google Ads â†’ 45 Admissions
+
+Facebook â†’ 18 Admissions
+
+Referral â†’ 30 Admissions
+Attendance Analytics
+
+Student:
+
+Lowest Attendance
+
+<truncated 124766 bytes>
+
+NOTE: The output was truncated because it was too long. Use a more targeted query or a smaller range to get the information you need.

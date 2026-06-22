@@ -47,3 +47,33 @@ if (!function_exists('sanitize')) {
         return trim(strip_tags($value ?? ''));
     }
 }
+
+if (!function_exists('canTeacherCreateClass')) {
+    /**
+     * Validate if a teacher is assigned to a specific class, section, and subject.
+     */
+    function canTeacherCreateClass(
+        PDO $pdo,
+        int $teacherId,
+        int $classId,
+        int $sectionId,
+        int $subjectId
+    ): bool {
+        $stmt = $pdo->prepare("
+            SELECT id
+            FROM teacher_assignments
+            WHERE teacher_id = ?
+            AND class_id = ?
+            AND section_id = ?
+            AND subject_id = ?
+            LIMIT 1
+        ");
+        $stmt->execute([
+            $teacherId,
+            $classId,
+            $sectionId,
+            $subjectId
+        ]);
+        return $stmt->fetch() !== false;
+    }
+}

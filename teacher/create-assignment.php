@@ -38,20 +38,107 @@ if(isset($_POST['create'])){
         }
 
         if(empty($error)){
-            $stmt = $pdo->prepare("
-                INSERT INTO assignments (class, subject, title, description, due_date, file_path, created_by)
-                VALUES (?,?,?,?,?,?,?)
-            ");
-            $stmt->execute([
-                $class,
-                $subject,
-                $title,
-                $description,
-                $due_date,
-                $path,
-                $_SESSION['teacher_id']
-            ]);
-            $message = "Assignment created and assigned successfully!";
+            try {
+                $pdo->beginTransaction();
+
+                $stmt = $pdo->prepare("
+                    INSERT INTO assignments (class, subject, title, description, due_date, file_path, created_by)
+                    VALUES (?,?,?,?,?,?,?)
+                ");
+                $stmt->execute([
+                    $class,
+                    $subject,
+                    $title,
+                    $description,
+                    $due_date,
+                    $path,
+                    $_SESSION['teacher_id']
+                ]);
+                $assignment_id = $pdo->lastInsertId();
+
+                // Resolve class_id, section_id, and subject_id for new columns compatibility
+                $c_name = $class;
+                $s_name = '';
+                if (preg_match('/^([^-]+)-([A-Z])$/', $class, $m)) {
+                    $c_name = $m[1];
+                    $s_name = $m[2];
+                }
+
+                $stmt_c_id = $pdo->prepare("SELECT id FROM classes WHERE class_name = ? OR class_name = ?");
+                $stmt_c_id->execute([$c_name, $class]);
+                $res_c_id = (int)$stmt_c_id->fetchColumn();
+
+                $stmt_s_id = $pdo->prepare("SELECT id FROM sections WHERE section_name = ?");
+                $stmt_s_id->execute([$s_name]);
+                $res_s_id = (int)$stmt_s_id->fetchColumn();
+
+                $stmt_sub_id = $pdo->prepare("SELECT id FROM subjects WHERE subject_name = ?");
+                $stmt_sub_id->execute([$subject]);
+                $res_sub_id = (int)$stmt_sub_id->fetchColumn();
+
+                $stmt_upd_ids = $pdo->prepare("
+                    UPDATE assignments 
+                    SET class_id = ?, section_id = ?, subject_id = ?, teacher_id = ? 
+                    WHERE id = ?
+                ");
+                $stmt_upd_ids->execute([
+                    $res_c_id > 0 ? $res_c_id : NULL,
+                    $res_s_id > 0 ? $res_s_id : NULL,
+                    $res_sub_id > 0 ? $res_sub_id : NULL,
+                    (int)$_SESSION['teacher_id'],
+                    $assignment_id
+                ]);
+
+                // Notify students & parents
+                require_once('../helpers/notification_helper.php');
+                
+                // Fetch students
+                $stmt_stud = $pdo->prepare("SELECT id, email, phone AS mobile FROM students WHERE class = ? OR class = ? OR (class = ? AND section = ?)");
+                $stmt_stud->execute([$class, $c_name, $c_name, $s_name]);
+                $students_list = $stmt_stud->fetchAll(PDO::FETCH_ASSOC);
+
+                $stud_notif_rec = [];
+                foreach ($students_list as $st) {
+                    $stud_notif_rec[] = ['id' => $st['id'], 'type' => 'STUDENT', 'email' => $st['email'], 'mobile' => $st['mobile']];
+                }
+
+                if (!empty($stud_notif_rec)) {
+                    $title_notif = "📚 New Homework Assignment: " . $title;
+                    $msg_notif = "Subject: {$subject}\nTitle: $title\nDue Date: " . date('d M Y', strtotime($due_date)) . "\n\nPlease complete and submit on time.";
+                    sendSystemNotification($pdo, $title_notif, $msg_notif, $stud_notif_rec);
+                }
+
+                // Fetch parents
+                $stmt_parents = $pdo->prepare("
+                    SELECT DISTINCT u.id, u.email, p.phone AS mobile
+                    FROM users u
+                    JOIN parent_student_map psm ON u.id = psm.parent_id
+                    JOIN students s ON psm.student_id = s.id
+                    LEFT JOIN parents p ON p.email = u.email
+                    WHERE s.class = ? OR s.class = ? OR (s.class = ? AND s.section = ?)
+                ");
+                $stmt_parents->execute([$class, $c_name, $c_name, $s_name]);
+                $parents_list = $stmt_parents->fetchAll(PDO::FETCH_ASSOC);
+
+                $parent_notif_rec = [];
+                foreach ($parents_list as $pr) {
+                    $parent_notif_rec[] = ['id' => $pr['id'], 'type' => 'PARENT', 'email' => $pr['email'], 'mobile' => $pr['mobile']];
+                }
+
+                if (!empty($parent_notif_rec)) {
+                    $title_p_notif = "📚 New Assignment Assigned to Child";
+                    $msg_p_notif = "Dear Parent,\n\nA new assignment '{$title}' has been published for your child in {$subject}.\n\nDue Date: " . date('d M Y', strtotime($due_date)) . "\n\nPlease ensure your child completes it on time.";
+                    sendSystemNotification($pdo, $title_p_notif, $msg_p_notif, $parent_notif_rec);
+                }
+
+                $pdo->commit();
+                $message = "Assignment created and assigned successfully!";
+            } catch (Exception $e) {
+                if ($pdo->inTransaction()) {
+                    $pdo->rollBack();
+                }
+                $error = 'Failed to create assignment: ' . $e->getMessage();
+            }
         }
     }
 }

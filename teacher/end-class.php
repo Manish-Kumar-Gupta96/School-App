@@ -66,7 +66,8 @@ if (isset($_POST['end_session'])) {
         $stmt_att_fin = $pdo->prepare("
             UPDATE online_class_attendance 
             SET leave_time = NOW(),
-                duration = TIMESTAMPDIFF(SECOND, join_time, NOW())
+                duration = TIMESTAMPDIFF(SECOND, join_time, NOW()),
+                duration_minutes = TIMESTAMPDIFF(MINUTE, join_time, NOW())
             WHERE class_id = ? AND leave_time IS NULL
         ");
         $stmt_att_fin->execute([$class_id]);

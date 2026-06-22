@@ -72,10 +72,10 @@ if (isset($_POST['update_status'])) {
 }
 
 // Fetch stats
-$stat_new = (int)$pdo->query("SELECT COUNT(*) FROM crm_leads WHERE status = 'New Lead'")->fetchColumn();
-$stat_contacted = (int)$pdo->query("SELECT COUNT(*) FROM crm_leads WHERE status = 'Contacted'")->fetchColumn();
-$stat_interested = (int)$pdo->query("SELECT COUNT(*) FROM crm_leads WHERE status = 'Interested'")->fetchColumn();
-$stat_confirmed = (int)$pdo->query("SELECT COUNT(*) FROM crm_leads WHERE status = 'Admission Confirmed'")->fetchColumn();
+$stat_new = (int)$pdo->query("SELECT COUNT(*) FROM crm_leads WHERE status IN ('new', 'New Lead')")->fetchColumn();
+$stat_contacted = (int)$pdo->query("SELECT COUNT(*) FROM crm_leads WHERE status IN ('contacted', 'Contacted')")->fetchColumn();
+$stat_interested = (int)$pdo->query("SELECT COUNT(*) FROM crm_leads WHERE status IN ('interested', 'Interested')")->fetchColumn();
+$stat_confirmed = (int)$pdo->query("SELECT COUNT(*) FROM crm_leads WHERE status IN ('admission_confirmed', 'Admission Confirmed')")->fetchColumn();
 $stat_total = (int)$pdo->query("SELECT COUNT(*) FROM crm_leads")->fetchColumn();
 
 // Setup Filters
@@ -93,8 +93,20 @@ if (!empty($search)) {
     $params[] = "%$search%";
 }
 if (!empty($status_filter)) {
-    $query_str .= " AND status = ?";
-    $params[] = $status_filter;
+    if ($status_filter === 'New Lead') {
+        $query_str .= " AND status IN ('New Lead', 'new')";
+    } elseif ($status_filter === 'Contacted') {
+        $query_str .= " AND status IN ('Contacted', 'contacted')";
+    } elseif ($status_filter === 'Interested') {
+        $query_str .= " AND status IN ('Interested', 'interested')";
+    } elseif ($status_filter === 'Visit Scheduled') {
+        $query_str .= " AND status IN ('Visit Scheduled', 'visit_scheduled')";
+    } elseif ($status_filter === 'Admission Confirmed') {
+        $query_str .= " AND status IN ('Admission Confirmed', 'admission_confirmed')";
+    } else {
+        $query_str .= " AND status = ?";
+        $params[] = $status_filter;
+    }
 }
 if (!empty($source_filter)) {
     $query_str .= " AND source = ?";
@@ -231,10 +243,12 @@ require_once($root_path . 'admin/includes/topbar.php');
                     <?php if (count($leads) > 0): ?>
                         <?php foreach ($leads as $lead): 
                             $status_class = 'bg-primary';
-                            if ($lead['status'] === 'Contacted') $status_class = 'bg-info text-dark';
-                            elseif ($lead['status'] === 'Interested') $status_class = 'bg-warning text-dark';
-                            elseif ($lead['status'] === 'Visit Scheduled') $status_class = 'bg-secondary';
-                            elseif ($lead['status'] === 'Admission Confirmed') $status_class = 'bg-success';
+                            $status_val = strtolower($lead['status']);
+                            if ($status_val === 'contacted') $status_class = 'bg-info text-dark';
+                            elseif ($status_val === 'interested') $status_class = 'bg-warning text-dark';
+                            elseif ($status_val === 'visit scheduled' || $status_val === 'visit_scheduled') $status_class = 'bg-secondary';
+                            elseif ($status_val === 'admission confirmed' || $status_val === 'admission_confirmed') $status_class = 'bg-success';
+                            elseif ($status_val === 'rejected') $status_class = 'bg-danger';
                             
                             $source_class = 'badge bg-light text-dark border';
                             if ($lead['source'] === 'Chatbot') $source_class = 'badge bg-light text-primary border border-primary';

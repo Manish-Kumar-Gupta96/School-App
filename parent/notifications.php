@@ -8,27 +8,72 @@ require_once('includes/header.php');
 $parent_id = $_SESSION['user_id'];
 
 // Handle Mark as Read
-if (isset($_GET['read_id'])) {
-    $read_id = (int)$_GET['read_id'];
-    $stmt = $pdo->prepare("
-        UPDATE notification_recipients
-        SET status = 'READ', read_at = NOW()
-        WHERE id = ? AND user_id = ? AND user_type = 'PARENT'
-    ");
-    $stmt->execute([$read_id, $parent_id]);
+if (isset($_GET['id']) || isset($_GET['read_id'])) {
+    $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+    $read_id = isset($_GET['read_id']) ? (int)$_GET['read_id'] : 0;
+
+    try {
+        $pdo->beginTransaction();
+        
+        if ($id > 0) {
+            // Update single table status
+            $stmt = $pdo->prepare("
+                UPDATE notifications
+                SET is_read = 1
+                WHERE id = ? AND user_id = ? AND user_type = 'parent'
+            ");
+            $stmt->execute([$id, $parent_id]);
+
+            // Update broker table status
+            $stmt2 = $pdo->prepare("
+                UPDATE notification_recipients
+                SET status = 'READ', read_at = NOW()
+                WHERE notification_id = ? AND user_id = ? AND user_type = 'PARENT'
+            ");
+            $stmt2->execute([$id, $parent_id]);
+        }
+
+        if ($read_id > 0) {
+            // Update broker table status by recipient ID
+            $stmt_rec = $pdo->prepare("
+                UPDATE notification_recipients
+                SET status = 'READ', read_at = NOW()
+                WHERE id = ? AND user_id = ? AND user_type = 'PARENT'
+            ");
+            $stmt_rec->execute([$read_id, $parent_id]);
+
+            // Sync back to notifications table
+            $stmt_sync = $pdo->prepare("
+                UPDATE notifications n
+                JOIN notification_recipients r ON r.notification_id = n.id
+                SET n.is_read = 1
+                WHERE r.id = ? AND n.user_id = ?
+            ");
+            $stmt_sync->execute([$read_id, $parent_id]);
+        }
+
+        $pdo->commit();
+    } catch (Exception $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+    }
     header("Location: notifications.php");
     exit;
 }
 
-// Fetch Parent Notifications
+// Fetch Parent Notifications from either notifications directly (single-table style) OR notification_recipients (broker-table style)
 $stmt = $pdo->prepare("
-    SELECT r.id as recipient_id, r.status, n.title, n.message, n.created_at
-    FROM notification_recipients r
-    JOIN notifications n ON r.notification_id = n.id
-    WHERE r.user_id = ? AND r.user_type = 'PARENT'
+    SELECT n.id, n.title, n.message, n.created_at, 
+           COALESCE(r.id, 0) AS recipient_id,
+           COALESCE(r.status, IF(n.is_read=1, 'READ', 'PENDING')) AS status
+    FROM notifications n
+    LEFT JOIN notification_recipients r ON r.notification_id = n.id AND r.user_id = ? AND r.user_type = 'PARENT'
+    WHERE (n.user_id = ? AND n.user_type = 'parent') 
+       OR (r.user_id = ? AND r.user_type = 'PARENT')
     ORDER BY n.id DESC
 ");
-$stmt->execute([$parent_id]);
+$stmt->execute([$parent_id, $parent_id, $parent_id]);
 $notifs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
@@ -53,7 +98,7 @@ $notifs = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <span class="text-muted small"><i class="fa fa-clock me-1"></i> Received: <?= htmlspecialchars($n['created_at']) ?></span>
                             </div>
                             <?php if ($n['status'] === 'PENDING'): ?>
-                                <a href="?read_id=<?= $n['recipient_id'] ?>" class="btn btn-sm btn-primary px-3 rounded-pill fw-semibold">
+                                <a href="?id=<?= $n['id'] ?>" class="btn btn-sm btn-primary px-3 rounded-pill fw-semibold">
                                     <i class="fa fa-check me-1"></i> Mark Read
                                 </a>
                             <?php else: ?>

@@ -61,9 +61,9 @@ try {
 
     // 3. Log join attendance
     $stmt_att = $pdo->prepare("
-        INSERT INTO online_class_attendance (class_id, student_id, join_time, leave_time, duration)
-        VALUES (?, ?, NOW(), NULL, NULL)
-        ON DUPLICATE KEY UPDATE join_time = NOW(), leave_time = NULL, duration = NULL
+        INSERT INTO online_class_attendance (class_id, student_id, join_time, leave_time, duration, duration_minutes)
+        VALUES (?, ?, NOW(), NULL, NULL, 0)
+        ON DUPLICATE KEY UPDATE join_time = NOW(), leave_time = NULL, duration = NULL, duration_minutes = 0
     ");
     $stmt_att->execute([$class_id, $student_id]);
 

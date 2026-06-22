@@ -167,47 +167,26 @@ if (!function_exists('notifyLiveClassScheduled')) {
         $parents = $stmt_parents->fetchAll(PDO::FETCH_ASSOC);
 
         // 4. Dispatch Student Notifications
-        $student_recipients = [];
+        require_once(__DIR__ . '/NotificationService.php');
+        $ns = new NotificationService($pdo);
+
+        $student_title = "📚 New Live Class Scheduled";
+        $student_msg = "Subject: $subject\nTeacher: $teacher_name\nDate: $date_str\nTime: $time_str\n\nPlease join on time.";
         foreach ($students as $student) {
-            $student_recipients[] = [
-                'id' => $student['id'],
-                'type' => 'STUDENT',
-                'email' => $student['email'],
-                'mobile' => $student['mobile']
-            ];
-        }
-        if (!empty($student_recipients)) {
-            $student_title = "📚 New Live Class Scheduled";
-            $student_msg = "Subject: $subject\nTeacher: $teacher_name\nDate: $date_str\nTime: $time_str\n\nPlease join on time.";
-            sendSystemNotification($pdo, $student_title, $student_msg, $student_recipients);
+            $ns->create($student['id'], 'student', $student_title, $student_msg, 'live_class', $class_id);
         }
 
         // 5. Dispatch Parent Notifications
-        $parent_recipients = [];
+        $parent_title = "📚 Child Live Class Scheduled";
+        $parent_msg = "Dear Parent,\n\nA live $subject class has been scheduled for your child.\n\nDate: $date_str\nTime: $time_str\n\nPlease ensure your child joins on time.";
         foreach ($parents as $parent) {
-            $parent_recipients[] = [
-                'id' => $parent['id'],
-                'type' => 'PARENT',
-                'email' => $parent['email'],
-                'mobile' => $parent['mobile']
-            ];
-        }
-        if (!empty($parent_recipients)) {
-            $parent_title = "📚 New Live Class Scheduled";
-            $parent_msg = "Dear Parent,\n\nA live $subject class has been scheduled for your child.\n\nDate: $date_str\nTime: $time_str\n\nPlease ensure your child joins on time.";
-            sendSystemNotification($pdo, $parent_title, $parent_msg, $parent_recipients);
+            $ns->create($parent['id'], 'parent', $parent_title, $parent_msg, 'live_class', $class_id);
         }
 
         // 6. Dispatch Teacher Notification
-        $teacher_recipients = [[
-            'id' => $c['teacher_id'],
-            'type' => 'TEACHER',
-            'email' => $c['teacher_email'],
-            'mobile' => $c['teacher_mobile']
-        ]];
         $teacher_title = "📚 New Live Class Scheduled";
         $teacher_msg = "Subject: $subject\nClass Target: $class_name\nDate: $date_str\nTime: $time_str\n\nYour scheduled live class has been registered.";
-        sendSystemNotification($pdo, $teacher_title, $teacher_msg, $teacher_recipients);
+        $ns->create($c['teacher_id'], 'teacher', $teacher_title, $teacher_msg, 'live_class', $class_id);
 
         return true;
     }
