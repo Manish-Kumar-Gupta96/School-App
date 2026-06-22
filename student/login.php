@@ -19,6 +19,17 @@ if(isset($_POST['login'])){
     if($student && password_verify($password, $student['password'])){
         $_SESSION['student_id'] = $student['id'];
         $_SESSION['student_name'] = $student['student_name'];
+        $_SESSION['role'] = 'student';
+
+        // Also fetch from users table for full session integration
+        $stmt_u = $pdo->prepare("SELECT id, role_id FROM users WHERE email = ?");
+        $stmt_u->execute([$student['email']]);
+        $user_rec = $stmt_u->fetch(PDO::FETCH_ASSOC);
+        if ($user_rec) {
+            $_SESSION['user_id'] = $user_rec['id'];
+            $_SESSION['role_id'] = $user_rec['role_id'];
+        }
+
         header("Location: dashboard.php");
         exit;
     } else {

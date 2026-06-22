@@ -1,4 +1,22 @@
 <?php
+if (session_status() == PHP_SESSION_NONE) {
+    @session_set_cookie_params([
+        'httponly' => true,
+        'secure'   => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
+        'samesite' => 'Strict'
+    ]);
+}
+
+date_default_timezone_set('Asia/Kolkata');
+
+if (!headers_sent()) {
+    header("X-Frame-Options: SAMEORIGIN");
+    header("X-XSS-Protection: 1; mode=block");
+    header("X-Content-Type-Options: nosniff");
+}
+
+require_once(__DIR__ . '/../helpers/security.php');
+require_once(__DIR__ . '/../helpers/upload.php');
 
 // Function to load .env file if it exists
 function loadEnv($dir) {

@@ -1,5 +1,19 @@
 <?php
-header("Access-Control-Allow-Origin: *");
+$http_host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+$domain = explode(':', $http_host)[0];
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+
+if (!empty($origin)) {
+    $parsed_url = parse_url($origin);
+    $origin_host = $parsed_url['host'] ?? '';
+    if ($origin_host === 'localhost' || $origin_host === '127.0.0.1' || $origin_host === $domain || str_ends_with($origin_host, '.' . $domain)) {
+        header("Access-Control-Allow-Origin: " . $origin);
+    } else {
+        header("Access-Control-Allow-Origin: http://" . $domain);
+    }
+} else {
+    header("Access-Control-Allow-Origin: http://" . $domain);
+}
 header("Content-Type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Max-Age: 3600");

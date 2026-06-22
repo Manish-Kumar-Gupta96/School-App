@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once('config/database.php');
+require_once('includes/AuthClass.php');
 
 // CSRF token generation
 if (empty($_SESSION['csrf'])) {
@@ -27,32 +28,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
                 if ($user && password_verify($password, $user['password'])) {
-                    $_SESSION['user_id'] = $user['id'];
-                    $_SESSION['role_id'] = $user['role_id'];
-                    $_SESSION['name'] = $user['name'];
+                    $role_name = '';
+                    $role_specific_id = null;
 
-                    // Map role_id to role string and set role-specific IDs for portal compatibility
                     if ($user['role_id'] == 1 || $user['role_id'] == 2) {
-                        $_SESSION['role'] = 'admin';
+                        $role_name = 'admin';
                         $stmt_adm = $pdo->prepare("SELECT id FROM admins WHERE email = ?");
                         $stmt_adm->execute([$user['email']]);
-                        $_SESSION['admin_id'] = $stmt_adm->fetchColumn() ?: null;
+                        $role_specific_id = $stmt_adm->fetchColumn() ?: null;
                     } else if ($user['role_id'] == 4) {
-                        $_SESSION['role'] = 'teacher';
+                        $role_name = 'teacher';
                         $stmt_tch = $pdo->prepare("SELECT id FROM teachers WHERE email = ?");
                         $stmt_tch->execute([$user['email']]);
-                        $_SESSION['teacher_id'] = $stmt_tch->fetchColumn() ?: null;
+                        $role_specific_id = $stmt_tch->fetchColumn() ?: null;
                     } else if ($user['role_id'] == 7) {
-                        $_SESSION['role'] = 'parent';
+                        $role_name = 'parent';
                         $stmt_prn = $pdo->prepare("SELECT id FROM parents WHERE email = ?");
                         $stmt_prn->execute([$user['email']]);
-                        $_SESSION['parent_id'] = $stmt_prn->fetchColumn() ?: null;
+                        $role_specific_id = $stmt_prn->fetchColumn() ?: null;
                     } else if ($user['role_id'] == 8) {
-                        $_SESSION['role'] = 'student';
+                        $role_name = 'student';
                         $stmt_std = $pdo->prepare("SELECT id FROM students WHERE email = ?");
                         $stmt_std->execute([$user['email']]);
-                        $_SESSION['student_id'] = $stmt_std->fetchColumn() ?: null;
+                        $role_specific_id = $stmt_std->fetchColumn() ?: null;
                     }
+
+                    Auth::login($user, $role_name, $role_specific_id);
 
                     // Log audit
                     $stmt_audit = $pdo->prepare("INSERT INTO audit_logs (user_id, action, ip_address) VALUES (?, ?, ?)");

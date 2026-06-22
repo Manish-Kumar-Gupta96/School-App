@@ -6,23 +6,14 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
+if (!isset($_SESSION['teacher_id'])) {
+    header("Location: login.php");
+    exit;
+}
+
 $error = '';
 $success = '';
-$teacher_id = 1; // Default fallback teacher ID
-
-// Try to fetch teacher's actual record
-if (isset($_SESSION['user_id'])) {
-    try {
-        $stmt_t = $pdo->prepare("SELECT id FROM teachers WHERE email = (SELECT email FROM users WHERE id = ?)");
-        $stmt_t->execute([$_SESSION['user_id']]);
-        $res = $stmt_t->fetch(PDO::FETCH_ASSOC);
-        if ($res) {
-            $teacher_id = $res['id'];
-        }
-    } catch (PDOException $e) {
-        // Ignore
-    }
-}
+$teacher_id = $_SESSION['teacher_id'];
 
 // Handle class status update
 if (isset($_GET['action']) && isset($_GET['id'])) {
@@ -70,6 +61,9 @@ require_once('includes/header.php');
 <div class="main-dashboard p-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fw-bold text-dark mb-0">My Scheduled Live Classes</h2>
+        <a href="create-class.php" class="btn btn-primary">
+            <i class="fa fa-calendar-plus me-1"></i> Schedule Live Class
+        </a>
     </div>
 
     <?php if ($success): ?>
@@ -114,8 +108,10 @@ require_once('includes/header.php');
                                 <td>
                                     <?php if ($c['platform'] === 'ZOOM'): ?>
                                         <span class="badge bg-primary-subtle text-primary"><i class="fa fa-video me-1"></i> Zoom</span>
-                                    <?php else: ?>
+                                    <?php elseif ($c['platform'] === 'GOOGLE_MEET'): ?>
                                         <span class="badge bg-success-subtle text-success"><i class="fa fa-calendar me-1"></i> Meet</span>
+                                    <?php else: ?>
+                                        <span class="badge bg-warning-subtle text-warning"><i class="fa fa-circle-nodes me-1"></i> Jitsi</span>
                                     <?php endif; ?>
                                 </td>
                                 <td class="small text-muted">
@@ -135,8 +131,8 @@ require_once('includes/header.php');
                                                 <i class="fa fa-circle-play"></i> Start Meeting
                                             </a>
                                         <?php elseif ($c['status'] === 'LIVE'): ?>
-                                            <a href="?action=complete&id=<?= $c['id'] ?>" class="btn btn-sm btn-outline-secondary">
-                                                <i class="fa fa-circle-check"></i> Complete
+                                            <a href="end-class.php?id=<?= $c['id'] ?>" class="btn btn-sm btn-danger">
+                                                <i class="fa fa-circle-check"></i> End Class
                                             </a>
                                         <?php endif; ?>
 

@@ -5,37 +5,53 @@ $message = '';
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $student_name  = trim($_POST['student_name'] ?? '');
-    $father_name   = trim($_POST['father_name'] ?? '');
-    $mother_name   = trim($_POST['mother_name'] ?? '');
-    $dob           = $_POST['dob'] ?? '';
-    $gender        = $_POST['gender'] ?? '';
-    $class_applied = $_POST['class_applied'] ?? '';
-    $phone         = trim($_POST['phone'] ?? '');
-    $email         = trim($_POST['email'] ?? '');
-    $address       = trim($_POST['address'] ?? '');
+    $student_name  = sanitize($_POST['student_name'] ?? '');
+    $father_name   = sanitize($_POST['father_name'] ?? '');
+    $mother_name   = sanitize($_POST['mother_name'] ?? '');
+    $dob           = sanitize($_POST['dob'] ?? '');
+    $gender        = sanitize($_POST['gender'] ?? '');
+    $class_applied = sanitize($_POST['class_applied'] ?? '');
+    $phone         = sanitize($_POST['phone'] ?? '');
+    $email         = sanitize($_POST['email'] ?? '');
+    $address       = sanitize($_POST['address'] ?? '');
+    $submitted_token = $_POST['csrf_token'] ?? '';
 
-    if (!empty($student_name) && !empty($father_name) && !empty($phone) && !empty($email) && !empty($class_applied)) {
+    if (!verify_csrf($submitted_token)) {
+        $error = "CSRF token validation failed. Please try again.";
+    } elseif (!empty($student_name) && !empty($father_name) && !empty($phone) && !empty($email) && !empty($class_applied)) {
         try {
-            // Generate Application Number: APP-YYYY-XXXX
-            $application_no = 'APP-' . date('Y') . '-' . rand(1000, 9999);
-
             $photo = '';
             $document = '';
+            
+            $upload_dir = "uploads/admissions/";
+            if (!is_dir($upload_dir)) {
+                mkdir($upload_dir, 0777, true);
+            }
 
-            // Handle student photo upload
+            // Handle student photo upload with strict validation
             if (!empty($_FILES['photo']['name'])) {
+                $photo_val = validate_uploaded_file($_FILES['photo'], ['jpg', 'jpeg', 'png', 'webp'], 2097152); // max 2MB
+                if ($photo_val !== true) {
+                    throw new Exception("Photo Validation Error: " . $photo_val);
+                }
                 $photo_ext = pathinfo($_FILES['photo']['name'], PATHINFO_EXTENSION);
                 $photo = time() . "_photo_" . rand(1000, 9999) . "." . $photo_ext;
-                move_uploaded_file($_FILES['photo']['tmp_name'], "uploads/admissions/" . $photo);
+                move_uploaded_file($_FILES['photo']['tmp_name'], $upload_dir . $photo);
             }
 
-            // Handle birth certificate or previous school document upload
+            // Handle birth certificate or document upload with strict validation
             if (!empty($_FILES['document']['name'])) {
+                $doc_val = validate_uploaded_file($_FILES['document'], ['pdf', 'jpg', 'jpeg', 'png', 'docx'], 2097152); // max 2MB
+                if ($doc_val !== true) {
+                    throw new Exception("Document Validation Error: " . $doc_val);
+                }
                 $doc_ext = pathinfo($_FILES['document']['name'], PATHINFO_EXTENSION);
                 $document = time() . "_doc_" . rand(1000, 9999) . "." . $doc_ext;
-                move_uploaded_file($_FILES['document']['tmp_name'], "uploads/admissions/" . $document);
+                move_uploaded_file($_FILES['document']['tmp_name'], $upload_dir . $document);
             }
+
+            // Generate Application Number: APP-YYYY-XXXX
+            $application_no = 'APP-' . date('Y') . '-' . rand(1000, 9999);
 
             $stmt = $pdo->prepare("
                 INSERT INTO admissions (
@@ -49,6 +65,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $application_no, $student_name, $father_name, $mother_name,
                 $dob, $gender, $class_applied, $phone,
                 $email, $address, $photo, $document
+            ]);
+
+            // Create lead in CRM Leads
+            $stmt_crm = $pdo->prepare("
+                INSERT INTO crm_leads (
+                    school_id, name, email, phone, class_applied, message, source, status
+                ) VALUES (?, ?, ?, ?, ?, ?, 'Admission Portal', 'New Lead')
+            ");
+            $message_content = "Online Admission Application submitted. Father: {$father_name}, Mother: {$mother_name}. App No: {$application_no}.";
+            $stmt_crm->execute([
+                CURRENT_SCHOOL_ID,
+                $student_name,
+                $email,
+                $phone,
+                $class_applied,
+                $message_content
             ]);
 
             $message = "Your admission application has been submitted successfully! Application Number: " . $application_no;
@@ -276,6 +308,7 @@ ONLINE APPLICATION FORM
             </div>
         <?php endif; ?>
         <form method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="<?= csrf() ?>">
             <div class="row">
                 <!-- Student Name -->
                 <div class="col-lg-6 mb-3">

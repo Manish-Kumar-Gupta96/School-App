@@ -1,5 +1,19 @@
 <?php
-header("Access-Control-Allow-Origin: *");
+$http_host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+$domain = explode(':', $http_host)[0];
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+
+if (!empty($origin)) {
+    $parsed_url = parse_url($origin);
+    $origin_host = $parsed_url['host'] ?? '';
+    if ($origin_host === 'localhost' || $origin_host === '127.0.0.1' || $origin_host === $domain || str_ends_with($origin_host, '.' . $domain)) {
+        header("Access-Control-Allow-Origin: " . $origin);
+    } else {
+        header("Access-Control-Allow-Origin: http://" . $domain);
+    }
+} else {
+    header("Access-Control-Allow-Origin: http://" . $domain);
+}
 header("Content-Type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Headers: Content-Type");
 
@@ -22,14 +36,18 @@ if (empty($query)) {
 // Format expected: "lead: Name, Phone, Email, Class query"
 if (stripos($query, 'lead:') === 0) {
     $parts = explode(',', substr($query, 5));
-    $name = isset($parts[0]) ? trim($parts[0]) : 'Anonymous Lead';
-    $phone = isset($parts[1]) ? trim($parts[1]) : '';
-    $email = isset($parts[2]) ? trim($parts[2]) : '';
-    $class_query = isset($parts[3]) ? trim($parts[3]) : 'Admission Enquiry';
+    $name = isset($parts[0]) ? sanitize($parts[0]) : 'Anonymous Lead';
+    $phone = isset($parts[1]) ? sanitize($parts[1]) : '';
+    $email = isset($parts[2]) ? sanitize($parts[2]) : '';
+    $class_query = isset($parts[3]) ? sanitize($parts[3]) : 'Admission Enquiry';
 
     try {
         $stmt_lead = $pdo->prepare("INSERT INTO admission_leads (name, phone, email, query) VALUES (?, ?, ?, ?)");
         $stmt_lead->execute([$name, $phone, $email, $class_query]);
+        
+        // Also save to CRM Leads
+        $stmt_crm = $pdo->prepare("INSERT INTO crm_leads (school_id, name, email, phone, class_applied, message, source, status) VALUES (?, ?, ?, ?, ?, ?, 'Chatbot', 'New Lead')");
+        $stmt_crm->execute([CURRENT_SCHOOL_ID, $name, $email, $phone, null, $class_query]);
         
         // Log chat history
         $stmt_log = $pdo->prepare("INSERT INTO ai_chat_history (session_id, role, content) VALUES (?, 'user', ?)");

@@ -47,6 +47,9 @@ if (!isset($root_path)) {
     <a href="<?= $root_path ?>admin/admissions/index.php" class="<?= (isset($active_menu) && $active_menu == 'admissions') ? 'active' : '' ?>">
         <i class="fa fa-user-plus"></i> <span>Admissions</span>
     </a>
+    <a href="<?= $root_path ?>admin/crm/leads.php" class="<?= (isset($active_menu) && $active_menu == 'crm') ? 'active' : '' ?>">
+        <i class="fa fa-address-book"></i> <span>CRM Leads</span>
+    </a>
     <a href="<?= $root_path ?>admin/attendance/attendance-list.php" class="<?= (isset($active_menu) && $active_menu == 'attendance') ? 'active' : '' ?>">
         <i class="fa fa-calendar-check"></i> <span>Attendance</span>
     </a>
@@ -91,6 +94,12 @@ if (!isset($root_path)) {
     </a>
     <a href="<?= $root_path ?>admin/ai-dashboard.php" class="<?= (isset($active_menu) && $active_menu == 'ai-dashboard') ? 'active' : '' ?>">
         <i class="fa fa-robot"></i> <span>AI Dashboard</span>
+    </a>
+    <a href="<?= $root_path ?>admin/seo.php" class="<?= (isset($active_menu) && $active_menu == 'seo') ? 'active' : '' ?>">
+        <i class="fa fa-search"></i> <span>SEO Settings</span>
+    </a>
+    <a href="<?= $root_path ?>admin/blogs.php" class="<?= (isset($active_menu) && $active_menu == 'blogs') ? 'active' : '' ?>">
+        <i class="fa fa-pen-nib"></i> <span>Blog Manager</span>
     </a>
     <a href="<?= $root_path ?>admin/accounts/ledgers.php" class="<?= (isset($active_menu) && $active_menu == 'accounts') ? 'active' : '' ?>">
         <i class="fa fa-wallet"></i> <span>Accounts Ledger</span>

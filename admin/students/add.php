@@ -30,99 +30,109 @@ if(isset($_POST['submit'])){
         $error = "Admission Number already exists!";
     } else {
         $photo = '';
+        $uploadOk = true;
 
         if(!empty($_FILES['photo']['name'])){
-            $photo = time() . '_' . preg_replace("/[^a-zA-Z0-9\._-]/", "", $_FILES['photo']['name']);
-            move_uploaded_file(
-                $_FILES['photo']['tmp_name'],
-                "../../uploads/students/" . $photo
-            );
+            // Validate photo using global helper
+            $validation = validate_uploaded_file($_FILES['photo'], ['jpg', 'jpeg', 'png', 'webp', 'gif'], ['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+            if ($validation !== true) {
+                $error = $validation;
+                $uploadOk = false;
+            } else {
+                $photo = time() . '_' . preg_replace("/[^a-zA-Z0-9\._-]/", "", $_FILES['photo']['name']);
+                move_uploaded_file(
+                    $_FILES['photo']['tmp_name'],
+                    "../../uploads/students/" . $photo
+                );
+            }
         }
 
-        try {
-            $pdo->beginTransaction();
+        if ($uploadOk) {
+            try {
+                $pdo->beginTransaction();
 
-            $stmt = $pdo->prepare("
-                INSERT INTO students(
-                    admission_no,
-                    roll_no,
-                    first_name,
-                    last_name,
-                    gender,
-                    dob,
-                    class,
-                    section,
-                    father_name,
-                    mother_name,
-                    phone,
-                    email,
-                    address,
-                    photo
-                )
-                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-            ");
+                $stmt = $pdo->prepare("
+                    INSERT INTO students(
+                        admission_no,
+                        roll_no,
+                        first_name,
+                        last_name,
+                        gender,
+                        dob,
+                        class,
+                        section,
+                        father_name,
+                        mother_name,
+                        phone,
+                        email,
+                        address,
+                        photo
+                    )
+                    VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                ");
 
-            $stmt->execute([
-                $admission_no,
-                $roll_no,
-                $first_name,
-                $last_name,
-                $gender,
-                $dob,
-                $class,
-                $section,
-                $father_name,
-                $mother_name,
-                $phone,
-                $email,
-                $address,
-                $photo
-            ]);
+                $stmt->execute([
+                    $admission_no,
+                    $roll_no,
+                    $first_name,
+                    $last_name,
+                    $gender,
+                    $dob,
+                    $class,
+                    $section,
+                    $father_name,
+                    $mother_name,
+                    $phone,
+                    $email,
+                    $address,
+                    $photo
+                ]);
 
-            $student_id = $pdo->lastInsertId();
+                $student_id = $pdo->lastInsertId();
 
-            // Keep parent info in sync inside parents and parent_students tables
-            $parent_name = !empty($father_name) ? $father_name : 'Parent of ' . $first_name . ' ' . $last_name;
-            $parentStmt = $pdo->prepare("
-                INSERT INTO parents (parent_name, father_name, mother_name, mobile, email, address, status, school_id, role_id)
-                VALUES (?, ?, ?, ?, ?, ?, 'Active', 1, 4)
-            ");
-            $parentStmt->execute([
-                $parent_name,
-                $father_name,
-                $mother_name,
-                $phone, // which corresponds to parent mobile/phone
-                $email,
-                $address
-            ]);
-            $parent_id = $pdo->lastInsertId();
+                // Keep parent info in sync inside parents and parent_students tables
+                $parent_name = !empty($father_name) ? $father_name : 'Parent of ' . $first_name . ' ' . $last_name;
+                $parentStmt = $pdo->prepare("
+                    INSERT INTO parents (parent_name, father_name, mother_name, mobile, email, address, status, school_id, role_id)
+                    VALUES (?, ?, ?, ?, ?, ?, 'Active', 1, 4)
+                ");
+                $parentStmt->execute([
+                    $parent_name,
+                    $father_name,
+                    $mother_name,
+                    $phone, // which corresponds to parent mobile/phone
+                    $email,
+                    $address
+                ]);
+                $parent_id = $pdo->lastInsertId();
 
-            $linkStmt = $pdo->prepare("
-                INSERT INTO parent_students (parent_id, student_id)
-                VALUES (?, ?)
-            ");
-            $linkStmt->execute([
-                $parent_id,
-                $student_id
-            ]);
+                $linkStmt = $pdo->prepare("
+                    INSERT INTO parent_students (parent_id, student_id)
+                    VALUES (?, ?)
+                ");
+                $linkStmt->execute([
+                    $parent_id,
+                    $student_id
+                ]);
 
 
-            require_once('../includes/audit-helper.php');
-            addAuditLog(
-                $pdo,
-                $_SESSION['user_id'],
-                $_SESSION['name'] ?? 'Admin',
-                $_SESSION['role'] ?? 'Admin',
-                'Student Created: ' . $first_name . ' ' . $last_name . ' (Admission No: ' . $admission_no . ')',
-                'Students',
-                $student_id
-            );
+                require_once('../includes/audit-helper.php');
+                addAuditLog(
+                    $pdo,
+                    $_SESSION['user_id'],
+                    $_SESSION['name'] ?? 'Admin',
+                    $_SESSION['role'] ?? 'Admin',
+                    'Student Created: ' . $first_name . ' ' . $last_name . ' (Admission No: ' . $admission_no . ')',
+                    'Students',
+                    $student_id
+                );
 
-            $pdo->commit();
-            $message = "Student Added Successfully!";
-        } catch (Exception $e) {
-            $pdo->rollBack();
-            $error = "An error occurred: " . $e->getMessage();
+                $pdo->commit();
+                $message = "Student Added Successfully!";
+            } catch (Exception $e) {
+                $pdo->rollBack();
+                $error = "An error occurred: " . $e->getMessage();
+            }
         }
     }
 }

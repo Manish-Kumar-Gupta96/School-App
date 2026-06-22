@@ -18,14 +18,19 @@ if (isset($_POST['upload_image'])) {
         $error = "Title, Category, and Image file are required.";
     } else {
         try {
-            $file_name = time() . '_' . preg_replace("/[^a-zA-Z0-9\._-]/", "", $_FILES['image']['name']);
-            $upload_dir = '../uploads/gallery/';
-            
-            if (!is_dir($upload_dir)) {
-                mkdir($upload_dir, 0777, true);
-            }
+            // Validate image using global helper
+            $validation = validate_uploaded_file($_FILES['image'], ['jpg', 'jpeg', 'png', 'webp', 'gif'], ['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+            if ($validation !== true) {
+                $error = $validation;
+            } else {
+                $file_name = time() . '_' . preg_replace("/[^a-zA-Z0-9\._-]/", "", $_FILES['image']['name']);
+                $upload_dir = '../uploads/gallery/';
+                
+                if (!is_dir($upload_dir)) {
+                    mkdir($upload_dir, 0777, true);
+                }
 
-            if (move_uploaded_file($_FILES['image']['tmp_name'], $upload_dir . $file_name)) {
+                if (move_uploaded_file($_FILES['image']['tmp_name'], $upload_dir . $file_name)) {
                 $stmt = $pdo->prepare("
                     INSERT INTO gallery (title, category, image_path)
                     VALUES (?, ?, ?)
@@ -46,6 +51,7 @@ if (isset($_POST['upload_image'])) {
                 $message = "Image uploaded and published successfully!";
             } else {
                 $error = "Failed to upload image to directory.";
+            }
             }
         } catch (Exception $e) {
             $error = "An error occurred: " . $e->getMessage();

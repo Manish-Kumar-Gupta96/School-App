@@ -36,6 +36,41 @@ $result = $pdo->prepare("
 ");
 $result->execute([$student_id]);
 $results = $result->fetchAll(PDO::FETCH_ASSOC);
+
+/* ==========================
+UPCOMING LIVE CLASSES
+========================== */
+$upcoming_classes = [];
+try {
+    $student_class = $student['class'] ?? '';
+    $student_section = $student['section'] ?? '';
+
+    $clean_class_name = $student_class;
+    if (preg_match('/^([^-]+)-[A-Z]$/', $student_class, $m)) {
+        $clean_class_name = $m[1]; // '10'
+    }
+
+    $stmt_c_id = $pdo->prepare("SELECT id FROM classes WHERE class_name = ? OR class_name = ?");
+    $stmt_c_id->execute([$clean_class_name, $student_class]);
+    $class_id = (int)$stmt_c_id->fetchColumn();
+
+    $stmt_s_id = $pdo->prepare("SELECT id FROM sections WHERE section_name = ?");
+    $stmt_s_id->execute([$student_section]);
+    $section_id = (int)$stmt_s_id->fetchColumn();
+
+    $stmt_c = $pdo->prepare("
+        SELECT oc.*, t.name AS teacher_name 
+        FROM online_classes oc
+        LEFT JOIN teachers t ON oc.teacher_id = t.id
+        WHERE oc.class_id = ? AND oc.section_id = ? AND oc.status != 'COMPLETED' AND oc.end_time > NOW()
+        ORDER BY oc.start_time ASC
+        LIMIT 4
+    ");
+    $stmt_c->execute([$class_id, $section_id]);
+    $upcoming_classes = $stmt_c->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    // Fail silently
+}
 ?>
 
 <div class="d-flex justify-content-between align-items-center mb-4 text-start">
@@ -70,6 +105,64 @@ $results = $result->fetchAll(PDO::FETCH_ASSOC);
             <h3 class="fw-bold mb-0 text-dark"><?= (int)$totalDays ?> Days</h3>
             <p class="text-muted small mb-0 mt-1">Total recorded attendance periods</p>
         </div>
+    </div>
+</div>
+
+<!-- UPCOMING LIVE CLASSES WIDGET -->
+<div class="card shadow-sm border-0 mb-4" style="border-radius: 15px; overflow: hidden;">
+    <div class="card-header bg-white border-0 py-3 ps-4 text-start d-flex justify-content-between align-items-center">
+        <h5 class="fw-bold mb-0 text-dark"><i class="fa fa-circle-play me-2 text-danger animate-pulse"></i>Upcoming & Live Classes</h5>
+        <a href="online-classes.php" class="btn btn-sm btn-outline-primary rounded-pill">View Schedule</a>
+    </div>
+    <div class="card-body p-4 text-start">
+        <?php if (count($upcoming_classes) > 0): ?>
+            <div class="row g-3">
+                <?php foreach ($upcoming_classes as $c): ?>
+                    <div class="col-md-6">
+                        <div class="p-3 border rounded h-100 d-flex flex-column justify-content-between" style="background-color: #fafbfd; border-radius: 10px;">
+                            <div>
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h6 class="fw-bold text-dark mb-1"><?= htmlspecialchars($c['title']) ?></h6>
+                                        <span class="badge bg-secondary-subtle text-secondary small"><?= htmlspecialchars($c['subject'] ?: 'Subject') ?></span>
+                                        <?php if ($c['platform'] === 'ZOOM'): ?>
+                                            <span class="badge bg-primary-subtle text-primary small"><i class="fa fa-video me-1"></i> Zoom</span>
+                                        <?php elseif ($c['platform'] === 'GOOGLE_MEET'): ?>
+                                            <span class="badge bg-success-subtle text-success small"><i class="fa fa-calendar me-1"></i> Meet</span>
+                                        <?php else: ?>
+                                            <span class="badge bg-warning-subtle text-warning small"><i class="fa fa-circle-nodes me-1"></i> Jitsi</span>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div>
+                                        <?php if ($c['status'] === 'LIVE'): ?>
+                                            <span class="badge bg-danger animate-pulse">LIVE NOW</span>
+                                        <?php else: ?>
+                                            <span class="badge bg-info">UPCOMING</span>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                <p class="text-muted small mb-2"><i class="fa fa-chalkboard-user me-2"></i>Instructor: <?= htmlspecialchars($c['teacher_name'] ?: 'Faculty') ?></p>
+                                <p class="text-muted small mb-3"><i class="fa fa-clock me-2"></i>Time: <?= date('d M, h:i A', strtotime($c['start_time'])) ?></p>
+                            </div>
+                            <?php if ($c['status'] === 'LIVE'): ?>
+                                <a href="join-class.php?class_id=<?= $c['id'] ?>" target="_blank" class="btn btn-primary w-100 py-2 fw-semibold" style="border-radius: 8px;">
+                                    <i class="fa fa-arrow-up-right-from-square me-2"></i> Join Live Class
+                                </a>
+                            <?php else: ?>
+                                <button class="btn btn-outline-secondary w-100 py-2 fw-semibold" disabled style="border-radius: 8px;">
+                                    <i class="fa fa-clock me-2"></i> Scheduled
+                                </button>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php else: ?>
+            <div class="text-center py-4 text-muted">
+                <i class="fa fa-video-slash fs-3 mb-2 d-block"></i>
+                No upcoming online classes scheduled for your class target.
+            </div>
+        <?php endif; ?>
     </div>
 </div>
 

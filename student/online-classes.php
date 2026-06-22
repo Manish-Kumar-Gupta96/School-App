@@ -7,33 +7,53 @@ if (session_status() == PHP_SESSION_NONE) {
 }
 
 $error = '';
-$student_class = 'Class 10-A'; // Default fallback
+$class_id = 0;
+$section_id = 0;
+$student_class = '';
+$student_section = '';
 
-// Try to fetch student target class
+// Try to fetch student target class details
 if (isset($_SESSION['user_id'])) {
     try {
-        $stmt_s = $pdo->prepare("SELECT class FROM students WHERE email = (SELECT email FROM users WHERE id = ?)");
+        $stmt_s = $pdo->prepare("SELECT class, section FROM students WHERE email = (SELECT email FROM users WHERE id = ?)");
         $stmt_s->execute([$_SESSION['user_id']]);
         $res = $stmt_s->fetch(PDO::FETCH_ASSOC);
-        if ($res && !empty($res['class'])) {
-            $student_class = $res['class'];
+        if ($res) {
+            $student_class = $res['class'] ?? '';
+            $student_section = $res['section'] ?? '';
+
+            // Resolve class_id and section_id
+            $clean_class_name = $student_class;
+            if (preg_match('/^([^-]+)-[A-Z]$/', $student_class, $m)) {
+                $clean_class_name = $m[1]; // '10'
+            }
+
+            // Find class_id from classes
+            $stmt_c_id = $pdo->prepare("SELECT id FROM classes WHERE class_name = ? OR class_name = ?");
+            $stmt_c_id->execute([$clean_class_name, $student_class]);
+            $class_id = (int)$stmt_c_id->fetchColumn();
+
+            // Find section_id from sections
+            $stmt_s_id = $pdo->prepare("SELECT id FROM sections WHERE section_name = ?");
+            $stmt_s_id->execute([$student_section]);
+            $section_id = (int)$stmt_s_id->fetchColumn();
         }
     } catch (PDOException $e) {
-        // Ignore
+        $error = 'Profile query error: ' . $e->getMessage();
     }
 }
 
-// Fetch classes matching student class
+// Fetch classes matching student class_id and section_id
 $classes = [];
 try {
     $stmt_c = $pdo->prepare("
         SELECT oc.*, t.name AS teacher_name 
         FROM online_classes oc
         LEFT JOIN teachers t ON oc.teacher_id = t.id
-        WHERE oc.class_name = ? AND oc.status != 'COMPLETED'
+        WHERE oc.class_id = ? AND oc.section_id = ? AND oc.status != 'COMPLETED'
         ORDER BY oc.start_time ASC
     ");
-    $stmt_c->execute([$student_class]);
+    $stmt_c->execute([$class_id, $section_id]);
     $classes = $stmt_c->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     $error = 'Error loading online classes: ' . $e->getMessage();
@@ -46,10 +66,10 @@ try {
         SELECT cr.*, oc.subject, oc.title AS class_title
         FROM class_recordings cr
         LEFT JOIN online_classes oc ON cr.class_id = oc.id
-        WHERE oc.class_name = ?
+        WHERE oc.class_id = ? AND oc.section_id = ?
         ORDER BY cr.id DESC
     ");
-    $stmt_r->execute([$student_class]);
+    $stmt_r->execute([$class_id, $section_id]);
     $recordings = $stmt_r->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     // Ignore
@@ -89,6 +109,13 @@ require_once('includes/header.php');
                                     <div>
                                         <h6 class="fw-bold text-dark mb-1"><?= htmlspecialchars($c['title']) ?></h6>
                                         <span class="badge bg-secondary-subtle text-secondary small"><?= htmlspecialchars($c['subject'] ?: 'Subject') ?></span>
+                                        <?php if ($c['platform'] === 'ZOOM'): ?>
+                                            <span class="badge bg-primary-subtle text-primary small"><i class="fa fa-video me-1"></i> Zoom</span>
+                                        <?php elseif ($c['platform'] === 'GOOGLE_MEET'): ?>
+                                            <span class="badge bg-success-subtle text-success small"><i class="fa fa-calendar me-1"></i> Meet</span>
+                                        <?php else: ?>
+                                            <span class="badge bg-warning-subtle text-warning small"><i class="fa fa-circle-nodes me-1"></i> Jitsi</span>
+                                        <?php endif; ?>
                                     </div>
                                     <div>
                                         <?php if ($c['status'] === 'LIVE'): ?>

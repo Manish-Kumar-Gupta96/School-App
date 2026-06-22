@@ -1,11 +1,12 @@
 <?php
+require_once(__DIR__ . '/AuthClass.php');
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 require_once(__DIR__ . '/../config/database.php');
 
 if(!isset($_SESSION['user_id']) || !isset($_SESSION['role'])){
-    $execScript = str_replace('\\', '/', $_SERVER['SCRIPT_FILENAME']);
+    $execScript = str_replace('\\', '/', realpath($_SERVER['SCRIPT_FILENAME']) ?: $_SERVER['SCRIPT_FILENAME']);
     $projectRoot = str_replace('\\', '/', dirname(__DIR__));
     if (strpos(strtolower($execScript), strtolower($projectRoot)) === 0) {
         $subpath = substr($execScript, strlen($projectRoot));

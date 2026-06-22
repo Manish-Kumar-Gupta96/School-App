@@ -2,6 +2,11 @@
 require_once('../../config/database.php');
 require_once('../../includes/auth.php');
 
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+    http_response_code(403);
+    die("Access Denied: Admin authorization required.");
+}
+
 if(!isset($_GET['id'])){
     header("Location:index.php");
     exit();

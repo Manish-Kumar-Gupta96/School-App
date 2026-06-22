@@ -5,15 +5,24 @@ $message = '';
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name = $_POST['name'] ?? '';
-    $email = $_POST['email'] ?? '';
-    $phone = $_POST['phone'] ?? '';
-    $msgContent = $_POST['message'] ?? '';
+    $name = sanitize($_POST['name'] ?? '');
+    $email = sanitize($_POST['email'] ?? '');
+    $phone = sanitize($_POST['phone'] ?? '');
+    $msgContent = sanitize($_POST['message'] ?? '');
+    $submitted_token = $_POST['csrf_token'] ?? '';
 
-    if (!empty($name) && !empty($email) && !empty($msgContent)) {
+    if (!verify_csrf($submitted_token)) {
+        $error = "CSRF token validation failed. Please try again.";
+    } elseif (!empty($name) && !empty($email) && !empty($msgContent)) {
         try {
+            // Log to contact_messages for backwards compatibility
             $stmt = $pdo->prepare("INSERT INTO contact_messages (name, email, phone, message, status) VALUES (?, ?, ?, ?, 'NEW')");
             $stmt->execute([$name, $email, $phone, $msgContent]);
+
+            // Save to CRM Leads
+            $stmt_crm = $pdo->prepare("INSERT INTO crm_leads (school_id, name, email, phone, class_applied, message, source, status) VALUES (?, ?, ?, ?, ?, ?, 'Website', 'New Lead')");
+            $stmt_crm->execute([CURRENT_SCHOOL_ID, $name, $email, $phone, null, $msgContent]);
+
             $message = "Your message has been sent successfully. We will get back to you soon!";
         } catch (Exception $e) {
             $error = "Failed to send message: " . $e->getMessage();
@@ -106,6 +115,7 @@ CONTACT FORM
                         </div>
                     <?php endif; ?>
                     <form method="POST">
+                        <input type="hidden" name="csrf_token" value="<?= csrf() ?>">
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <input type="text" name="name" class="form-control" placeholder="Full Name" required>

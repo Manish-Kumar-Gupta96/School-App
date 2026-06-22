@@ -1,96 +1,110 @@
 <?php
-$root_path = "../../";
+$root_path = "../";
 require_once($root_path . 'config/database.php');
-require_once($root_path . 'includes/auth.php');
 
-// Ensure role permission checks
-if (!isset($_SESSION['role_id']) || $_SESSION['role_id'] != 1) {
-    header("Location: " . $root_path . "login.php");
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Security Check: Only allow logged-in teachers
+if (!isset($_SESSION['teacher_id'])) {
+    header("Location: login.php");
     exit;
 }
 
 $success = '';
 $error = '';
+$teacher_id = $_SESSION['teacher_id'];
 
-// Fetch Metadata
-$classes = [];
-$sections = [];
-$subjects = [];
-$teachers = [];
+// Fetch teacher's assigned classes and subjects
+$assignments = [];
+$unique_classes = [];
 try {
-    $classes = $pdo->query("SELECT id, class_name FROM classes ORDER BY class_name ASC")->fetchAll(PDO::FETCH_ASSOC);
-    $sections = $pdo->query("SELECT id, section_name FROM sections ORDER BY section_name ASC")->fetchAll(PDO::FETCH_ASSOC);
-    $subjects = $pdo->query("SELECT id, subject_name FROM subjects ORDER BY subject_name ASC")->fetchAll(PDO::FETCH_ASSOC);
-    $teachers = $pdo->query("SELECT id, name FROM teachers ORDER BY name ASC")->fetchAll(PDO::FETCH_ASSOC);
+    $stmt_a = $pdo->prepare("
+        SELECT ta.class_id, ta.section_id, ta.subject_id,
+               c.class_name, s.section_name, sub.subject_name
+        FROM teacher_class_assignments ta
+        JOIN classes c ON ta.class_id = c.id
+        JOIN sections s ON ta.section_id = s.id
+        JOIN subjects sub ON ta.subject_id = sub.id
+        WHERE ta.teacher_id = ?
+    ");
+    $stmt_a->execute([$teacher_id]);
+    $assignments = $stmt_a->fetchAll(PDO::FETCH_ASSOC);
+
+    // Group unique class + sections for dropdown
+    foreach ($assignments as $a) {
+        $key = $a['class_id'] . '-' . $a['section_id'];
+        $unique_classes[$key] = "Class " . $a['class_name'] . " - " . $a['section_name'];
+    }
 } catch (PDOException $e) {
-    $error = 'Error loading metadata: ' . $e->getMessage();
+    $error = 'Error loading assignments: ' . $e->getMessage();
 }
 
 // Handle Form Submission
 if (isset($_POST['save_class'])) {
     $title = trim($_POST['title']);
-    $class_id = (int)$_POST['class_id'];
-    $section_id = (int)$_POST['section_id'];
-    $subject_id = (int)$_POST['subject_id'];
-    $teacher_id = (int)$_POST['teacher_id'];
-    $platform = $_POST['platform'];
-    $start_time = $_POST['start_time'];
-    $end_time = $_POST['end_time'];
+    $class_section = $_POST['class_section_id'] ?? ''; // e.g. "14-1"
+    $subject_id = isset($_POST['subject_id']) ? (int)$_POST['subject_id'] : 0;
+    $platform = $_POST['platform'] ?? 'ZOOM';
+    $start_time = $_POST['start_time'] ?? '';
+    $end_time = $_POST['end_time'] ?? '';
     $auto_gen = isset($_POST['auto_generate']);
-    $meeting_link = trim($_POST['meeting_link']);
+    $meeting_link = trim($_POST['meeting_link'] ?? '');
 
-    if (empty($title) || empty($class_id) || empty($section_id) || empty($subject_id) || empty($start_time) || empty($end_time)) {
+    if (empty($title) || empty($class_section) || empty($subject_id) || empty($start_time) || empty($end_time)) {
         $error = 'Please fill out all required fields.';
     } else {
-        // Resolve text representations for backwards compatibility
-        $stmt_c = $pdo->prepare("SELECT class_name FROM classes WHERE id = ?");
-        $stmt_c->execute([$class_id]);
-        $c_name = $stmt_c->fetchColumn() ?: '';
+        list($class_id, $section_id) = explode('-', $class_section);
+        $class_id = (int)$class_id;
+        $section_id = (int)$section_id;
 
-        $stmt_s = $pdo->prepare("SELECT section_name FROM sections WHERE id = ?");
-        $stmt_s->execute([$section_id]);
-        $s_name = $stmt_s->fetchColumn() ?: '';
+        // Security check: Automatically validate assignment exists
+        $stmt_check = $pdo->prepare("
+            SELECT COUNT(*) 
+            FROM teacher_class_assignments 
+            WHERE teacher_id = ? AND class_id = ? AND section_id = ? AND subject_id = ?
+        ");
+        $stmt_check->execute([$teacher_id, $class_id, $section_id, $subject_id]);
+        $assigned = (bool)$stmt_check->fetchColumn();
 
-        $stmt_sub = $pdo->prepare("SELECT subject_name FROM subjects WHERE id = ?");
-        $stmt_sub->execute([$subject_id]);
-        $sub_name = $stmt_sub->fetchColumn() ?: '';
+        if (!$assigned) {
+            $error = 'Access Denied: You are not assigned to this Class, Section, or Subject.';
+        } else {
+            // Resolve text labels for backwards compatibility
+            $stmt_c = $pdo->prepare("SELECT class_name FROM classes WHERE id = ?");
+            $stmt_c->execute([$class_id]);
+            $c_name = $stmt_c->fetchColumn() ?: '';
 
-        $class_name = $c_name . "-" . $s_name;
-        $subject = $sub_name;
+            $stmt_s = $pdo->prepare("SELECT section_name FROM sections WHERE id = ?");
+            $stmt_s->execute([$section_id]);
+            $s_name = $stmt_s->fetchColumn() ?: '';
 
-        $meeting_id = '';
-        if ($auto_gen) {
-            if ($platform === 'ZOOM') {
-                // Fetch Zoom credentials to verify
-                $zoom = $pdo->query("SELECT * FROM zoom_settings LIMIT 1")->fetch(PDO::FETCH_ASSOC);
-                if (!$zoom) {
-                    $error = 'Zoom credentials not configured. Please configure them first.';
-                } else {
-                    // Simulate Zoom API response
+            $stmt_sub = $pdo->prepare("SELECT subject_name FROM subjects WHERE id = ?");
+            $stmt_sub->execute([$subject_id]);
+            $sub_name = $stmt_sub->fetchColumn() ?: '';
+
+            $class_name = $c_name . "-" . $s_name;
+            $subject = $sub_name;
+
+            $meeting_id = '';
+            if ($auto_gen) {
+                if ($platform === 'ZOOM') {
                     $meeting_id = rand(100000000, 999999999);
                     $meeting_link = "https://zoom.us/j/" . $meeting_id;
-                }
-            } else if ($platform === 'GOOGLE_MEET') {
-                // Fetch Google credentials
-                $google = $pdo->query("SELECT * FROM google_settings LIMIT 1")->fetch(PDO::FETCH_ASSOC);
-                if (!$google) {
-                    $error = 'Google Meet credentials not configured. Please configure them first.';
-                } else {
-                    // Simulate Google calendar Meet response
+                } else if ($platform === 'GOOGLE_MEET') {
                     $chars = 'abcdefghijklmnopqrstuvwxyz';
                     $g_code = substr(str_shuffle($chars), 0, 3) . '-' . substr(str_shuffle($chars), 0, 4) . '-' . substr(str_shuffle($chars), 0, 3);
                     $meeting_id = $g_code;
                     $meeting_link = "https://meet.google.com/" . $g_code;
+                } else {
+                    // JITSI Meet
+                    $unique_id = bin2hex(random_bytes(4));
+                    $meeting_id = "vicschool-" . $class_id . "-" . $subject_id . "-" . $unique_id;
+                    $meeting_link = "https://meet.jit.si/" . $meeting_id;
                 }
-            } else {
-                // JITSI Meet
-                $unique_id = bin2hex(random_bytes(4));
-                $meeting_id = "vicschool-" . $class_id . "-" . $subject_id . "-" . $unique_id;
-                $meeting_link = "https://meet.jit.si/" . $meeting_id;
             }
-        }
 
-        if (empty($error)) {
             try {
                 $stmt = $pdo->prepare("
                     INSERT INTO online_classes (title, class_name, subject, teacher_id, platform, meeting_link, meeting_id, start_time, end_time, status, class_id, section_id, subject_id)
@@ -110,32 +124,19 @@ if (isset($_POST['save_class'])) {
     }
 }
 
-$page_title = "Schedule Class | VIC ERP";
-$page_header = "Online Classes Integration";
+$page_title = "Schedule Class | Teacher Portal";
+$page_header = "Virtual Class Coordinator";
 $active_menu = "online-classes";
 
-require_once($root_path . 'admin/includes/header.php');
-require_once($root_path . 'admin/includes/topbar.php');
+require_once('includes/header.php');
 ?>
 
 <div class="main-dashboard p-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fw-bold text-dark mb-0">Schedule a New Live Class</h2>
-        <a href="class-list.php" class="btn btn-outline-secondary">
-            <i class="fa fa-list me-1"></i> Scheduled Classes
+        <a href="online-classes.php" class="btn btn-outline-secondary">
+            <i class="fa fa-list me-1"></i> Back to Classes
         </a>
-    </div>
-
-    <!-- Sub links panel -->
-    <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px;">
-        <div class="card-body p-2 d-flex gap-2">
-            <a href="class-list.php" class="btn btn-sm btn-light">Classes Register</a>
-            <a href="create-class.php" class="btn btn-sm btn-primary">Schedule Class</a>
-            <a href="zoom-meetings.php" class="btn btn-sm btn-light">Zoom Settings</a>
-            <a href="google-meet.php" class="btn btn-sm btn-light">Google Meet Settings</a>
-            <a href="recordings.php" class="btn btn-sm btn-light">Class Recordings</a>
-            <a href="reports.php" class="btn btn-sm btn-light">Attendance Reports</a>
-        </div>
     </div>
 
     <?php if ($success): ?>
@@ -159,43 +160,20 @@ require_once($root_path . 'admin/includes/topbar.php');
                 <input type="text" name="title" class="form-control" placeholder="e.g. Algebra Chapter 3 Revision" required style="border-radius: 8px;">
             </div>
 
-            <div class="col-md-2">
+            <div class="col-md-3">
                 <label class="form-label fw-semibold small">Target Class Room <span class="text-danger">*</span></label>
-                <select name="class_id" class="form-select" required style="border-radius: 8px;">
+                <select name="class_section_id" id="class_section_id" class="form-select" required onchange="updateSubjects()" style="border-radius: 8px;">
                     <option value="">-- Choose Class --</option>
-                    <?php foreach ($classes as $cl): ?>
-                        <option value="<?= $cl['id'] ?>"><?= htmlspecialchars($cl['class_name']) ?></option>
+                    <?php foreach ($unique_classes as $val => $lbl): ?>
+                        <option value="<?= $val ?>"><?= htmlspecialchars($lbl) ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
 
-            <div class="col-md-2">
-                <label class="form-label fw-semibold small">Section <span class="text-danger">*</span></label>
-                <select name="section_id" class="form-select" required style="border-radius: 8px;">
-                    <option value="">-- Choose Section --</option>
-                    <?php foreach ($sections as $sec): ?>
-                        <option value="<?= $sec['id'] ?>"><?= htmlspecialchars($sec['section_name']) ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-
-            <div class="col-md-2">
+            <div class="col-md-3">
                 <label class="form-label fw-semibold small">Subject <span class="text-danger">*</span></label>
-                <select name="subject_id" class="form-select" required style="border-radius: 8px;">
+                <select name="subject_id" id="subject_id" class="form-select" required style="border-radius: 8px;">
                     <option value="">-- Choose Subject --</option>
-                    <?php foreach ($subjects as $sb): ?>
-                        <option value="<?= $sb['id'] ?>"><?= htmlspecialchars($sb['subject_name']) ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-
-            <div class="col-md-6">
-                <label class="form-label fw-semibold small">Assigned Teacher faculty</label>
-                <select name="teacher_id" class="form-select" required style="border-radius: 8px;">
-                    <option value="">-- Select Teacher --</option>
-                    <?php foreach ($teachers as $t): ?>
-                        <option value="<?= $t['id'] ?>"><?= htmlspecialchars($t['name']) ?></option>
-                    <?php endforeach; ?>
                 </select>
             </div>
 
@@ -239,6 +217,33 @@ require_once($root_path . 'admin/includes/topbar.php');
 </div>
 
 <script>
+// Load assignments array from PHP
+const assignments = <?= json_encode($assignments) ?>;
+
+function updateSubjects() {
+    const classSectionVal = document.getElementById('class_section_id').value;
+    const subjectSelect = document.getElementById('subject_id');
+    
+    // Clear previous options
+    subjectSelect.innerHTML = '<option value="">-- Choose Subject --</option>';
+    
+    if (!classSectionVal) return;
+    
+    const parts = classSectionVal.split('-');
+    const classId = parseInt(parts[0]);
+    const sectionId = parseInt(parts[1]);
+    
+    // Filter and add subjects associated with this class and section
+    const filtered = assignments.filter(a => parseInt(a.class_id) === classId && parseInt(a.section_id) === sectionId);
+    
+    filtered.forEach(a => {
+        const opt = document.createElement('option');
+        opt.value = a.subject_id;
+        opt.textContent = a.subject_name;
+        subjectSelect.appendChild(opt);
+    });
+}
+
 document.getElementById('auto_generate').addEventListener('change', function() {
     const manualGroup = document.getElementById('manual_link_group');
     if (this.checked) {
@@ -250,5 +255,5 @@ document.getElementById('auto_generate').addEventListener('change', function() {
 </script>
 
 <?php
-require_once($root_path . 'admin/includes/footer.php');
+require_once('includes/footer.php');
 ?>
