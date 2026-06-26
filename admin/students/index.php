@@ -1,6 +1,9 @@
 <?php
 require_once('../../config/database.php');
 require_once('../../includes/auth.php');
+require_once('../../includes/access.php');
+
+requirePermission($pdo, 'students_view');
 
 /* ==========================
 SEARCH
@@ -34,9 +37,11 @@ require_once('../includes/topbar.php');
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h5 class="text-muted mb-0">Manage and View Student Records</h5>
+    <?php if (hasPermission($pdo, $_SESSION['user_id'], 'students_add')): ?>
     <a href="add.php" class="btn btn-primary">
         <i class="fa fa-plus me-1"></i> Add Student
     </a>
+    <?php endif; ?>
 </div>
 
 <!-- ALERTS -->
@@ -96,12 +101,16 @@ require_once('../includes/topbar.php');
                                         <a href="view.php?id=<?= $student['id'] ?>" class="btn btn-outline-info btn-sm">
                                             <i class="fa fa-eye"></i> View
                                         </a>
+                                        <?php if (hasPermission($pdo, $_SESSION['user_id'], 'students_edit')): ?>
                                         <a href="edit.php?id=<?= $student['id'] ?>" class="btn btn-outline-warning btn-sm">
                                             <i class="fa fa-edit"></i> Edit
                                         </a>
+                                        <?php endif; ?>
+                                        <?php if (hasPermission($pdo, $_SESSION['user_id'], 'students_delete')): ?>
                                         <a href="delete.php?id=<?= $student['id'] ?>" class="btn btn-outline-danger btn-sm" onclick="return confirm('Are you sure you want to delete this student profile?')">
                                             <i class="fa fa-trash"></i> Delete
                                         </a>
+                                        <?php endif; ?>
                                     </div>
                                 </td>
                             </tr>

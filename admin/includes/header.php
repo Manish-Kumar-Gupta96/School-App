@@ -59,8 +59,11 @@ if (!isset($root_path)) {
     <a href="<?= $root_path ?>admin/transport/routes.php" class="<?= (isset($active_menu) && $active_menu == 'transport') ? 'active' : '' ?>">
         <i class="fa fa-bus"></i> <span>Transport</span>
     </a>
-    <a href="<?= $root_path ?>admin/hostel/room-types.php" class="<?= (isset($active_menu) && $active_menu == 'hostel') ? 'active' : '' ?>">
+    <a href="<?= $root_path ?>admin/hostel/hostels.php" class="<?= (isset($active_menu) && $active_menu == 'hostel') ? 'active' : '' ?>">
         <i class="fa fa-hotel"></i> <span>Hostel</span>
+    </a>
+    <a href="<?= $root_path ?>admin/visitor/security-dashboard.php" class="<?= (isset($active_menu) && $active_menu == 'visitor') ? 'active' : '' ?>">
+        <i class="fa fa-shield-halved"></i> <span>Gate & Visitor Pass</span>
     </a>
     <a href="<?= $root_path ?>admin/inventory/categories.php" class="<?= (isset($active_menu) && $active_menu == 'inventory') ? 'active' : '' ?>">
         <i class="fa fa-boxes-stacked"></i> <span>Inventory</span>
@@ -107,9 +110,23 @@ if (!isset($root_path)) {
     <a href="<?= $root_path ?>admin/career/applications.php" class="<?= (isset($active_menu) && $active_menu == 'careers') ? 'active' : '' ?>">
         <i class="fa fa-briefcase"></i> <span>Job Vacancies</span>
     </a>
+    <a href="<?= $root_path ?>admin/alumni/directory.php" class="<?= (isset($active_menu) && $active_menu == 'alumni') ? 'active' : '' ?>">
+        <i class="fa fa-graduation-cap"></i> <span>Alumni Portal</span>
+    </a>
+    <a href="<?= $root_path ?>admin/placement/placements.php" class="<?= (isset($active_menu) && $active_menu == 'placement') ? 'active' : '' ?>">
+        <i class="fa fa-briefcase-clock"></i> <span>Placements & Career</span>
+    </a>
+    <a href="<?= $root_path ?>admin/documents/templates.php" class="<?= (isset($active_menu) && $active_menu == 'documents') ? 'active' : '' ?>">
+        <i class="fa fa-file-contract"></i> <span>Documents</span>
+    </a>
     <a href="<?= $root_path ?>admin/roles.php" class="<?= (isset($active_menu) && $active_menu == 'roles') ? 'active' : '' ?>">
         <i class="fa fa-user-shield"></i> <span>Roles & Security</span>
     </a>
+    <?php if(isset($_SESSION['role_id']) && $_SESSION['role_id'] == 1): ?>
+    <a href="<?= $root_path ?>admin/user-credentials.php" class="<?= (isset($active_menu) && $active_menu == 'settings') ? 'active' : '' ?>">
+        <i class="fa fa-users-cog"></i> <span>User Credentials</span>
+    </a>
+    <?php endif; ?>
     <a href="<?= $root_path ?>admin/audit/logs.php" class="<?= (isset($active_menu) && $active_menu == 'audit') ? 'active' : '' ?>">
         <i class="fa fa-history"></i> <span>Audit Trail</span>
     </a>

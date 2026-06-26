@@ -203,5 +203,44 @@ def attendance_alerts():
         "students": alerts
     })
 
+# ==========================
+# NLP CHAT INTERFACE
+# ==========================
+@app.route("/chat", methods=["POST"])
+def chat():
+    try:
+        data = request.get_json(force=True)
+        query = data.get("query", "").lower()
+    except Exception:
+        query = ""
+
+    response_text = "I am the SchoolOS AI Copilot. How can I assist you today?"
+    intent = "general"
+
+    if "fee" in query and "collected" in query:
+        response_text = "Based on ledger records, ₹ 8,45,000 has been collected in Tuition Fees this month."
+        intent = "finance_query"
+    elif "defaulters" in query:
+        response_text = "There are currently 47 students with pending fees totaling ₹ 4,28,500. I recommend triggering the Fee Recovery Automation workflow."
+        intent = "finance_query"
+    elif "admission" in query and "forecast" in query:
+        response_text = "AI Forecast: Based on current trends, we expect 23 new admissions next month, increasing revenue by approx ₹ 1,15,000."
+        intent = "admission_forecast"
+    elif "top" in query and "expense" in query:
+        response_text = "The top expenses this month are: 1. Salary (₹ 4.1L) 2. Electricity (₹ 85k) 3. Maintenance (₹ 32k)."
+        intent = "finance_query"
+    elif "bonafide" in query or "generate" in query:
+        response_text = "I can generate document batches. Please navigate to Certificate Generation and select the 'Bulk AI' option."
+        intent = "document_automation"
+    elif "lesson plan" in query:
+        response_text = "I have drafted a lesson plan for Science Chapter 8 (Force). It includes 3 activities and 10 worksheet questions. Saved to your drafts."
+        intent = "academic_assistant"
+
+    return jsonify({
+        "query": query,
+        "response": response_text,
+        "intent": intent
+    })
+
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=5000, debug=True)

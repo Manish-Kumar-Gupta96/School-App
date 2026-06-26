@@ -1,6 +1,9 @@
 <?php
 require_once('../../config/database.php');
 require_once('../../includes/auth.php');
+require_once('../../includes/access.php');
+
+requirePermission($pdo, 'students_edit');
 
 if(!isset($_GET['id'])){
     header("Location: index.php");
@@ -131,7 +134,7 @@ if(isset($_POST['update'])){
                 $parent_name = !empty($father_name) ? $father_name : 'Parent of ' . $first_name . ' ' . $last_name;
                 $parentInsert = $pdo->prepare("
                     INSERT INTO parents (parent_name, father_name, mother_name, mobile, email, address, status, school_id, role_id)
-                    VALUES (?, ?, ?, ?, ?, ?, 'Active', 1, 4)
+                    VALUES (?, ?, ?, ?, ?, ?, 'Active', 1, 7)
                 ");
                 $parentInsert->execute([
                     $parent_name,

@@ -26,7 +26,7 @@ if (isset($_POST['update_permissions'])) {
             $delete = isset($_POST["perm"][$module]["delete"]) ? 1 : 0;
             
             $stmt = $pdo->prepare("
-                INSERT INTO permissions (role_id, module, can_view, can_add, can_edit, can_delete)
+                INSERT INTO role_module_permissions (role_id, module, can_view, can_add, can_edit, can_delete)
                 VALUES (?,?,?,?,?,?)
                 ON DUPLICATE KEY UPDATE 
                     can_view = VALUES(can_view),
@@ -52,7 +52,7 @@ $roles = $pdo->query("SELECT * FROM roles ORDER BY id ASC")->fetchAll(PDO::FETCH
 $selected_role_id = isset($_GET['role_id']) ? (int)$_GET['role_id'] : 1;
 
 // Get permissions for selected role
-$stmt_p = $pdo->prepare("SELECT * FROM permissions WHERE role_id=?");
+$stmt_p = $pdo->prepare("SELECT * FROM role_module_permissions WHERE role_id=?");
 $stmt_p->execute([$selected_role_id]);
 $permissions_list = $stmt_p->fetchAll(PDO::FETCH_ASSOC);
 

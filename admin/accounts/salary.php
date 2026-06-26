@@ -65,7 +65,7 @@ $bank_list = $banks->fetchAll(PDO::FETCH_ASSOC);
 $teachers = [];
 try {
     // Check columns first or select basic fields
-    $stmt_t = $pdo->prepare("SELECT id, first_name, last_name, email, phone FROM teachers WHERE school_id = ?");
+    $stmt_t = $pdo->prepare("SELECT id, name, email, phone FROM teachers WHERE school_id = ?");
     $stmt_t->execute([CURRENT_SCHOOL_ID]);
     $teachers = $stmt_t->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
@@ -111,7 +111,7 @@ require_once($root_path . 'admin/includes/topbar.php');
                 <select name="teacher_id" class="form-select" required style="border-radius: 8px;">
                     <option value="">-- Choose Faculty --</option>
                     <?php foreach ($teachers as $t): ?>
-                        <option value="<?= $t['id'] ?>"><?= htmlspecialchars($t['first_name'] . ' ' . $t['last_name']) ?> (ID: <?= $t['id'] ?>)</option>
+                        <option value="<?= $t['id'] ?>"><?= htmlspecialchars($t['name']) ?> (ID: <?= $t['id'] ?>)</option>
                     <?php endforeach; ?>
                 </select>
             </div>
@@ -161,11 +161,11 @@ require_once($root_path . 'admin/includes/topbar.php');
                         <?php foreach ($teachers as $t): ?>
                             <tr>
                                 <td class="ps-4 text-muted">#<?= $t['id'] ?></td>
-                                <td class="fw-bold text-dark"><?= htmlspecialchars($t['first_name'] . ' ' . $t['last_name']) ?></td>
+                                <td class="fw-bold text-dark"><?= htmlspecialchars($t['name']) ?></td>
                                 <td class="small text-muted"><?= htmlspecialchars($t['email']) ?></td>
                                 <td class="small text-muted"><?= htmlspecialchars($t['phone'] ?: '-') ?></td>
                                 <td class="pe-4 text-end">
-                                    <button class="btn btn-sm btn-outline-primary" onclick="disburseTo(<?= $t['id'] ?>, '<?= htmlspecialchars($t['first_name'] . ' ' . $t['last_name']) ?>')">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="disburseTo(<?= $t['id'] ?>, '<?= htmlspecialchars($t['name']) ?>')">
                                         <i class="fa fa-circle-dollar-to-slot"></i> Quick Pay
                                     </button>
                                 </td>

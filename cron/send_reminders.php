@@ -129,5 +129,115 @@ try {
     echo "[ERROR] CRM followups reminders query failed: " . $e->getMessage() . "\n";
 }
 
+// ==========================
+// 3. LIBRARY BOOK DUE & OVERDUE REMINDERS
+// ==========================
+try {
+    // Due tomorrow
+    $stmt_due = $pdo->query("
+        SELECT li.*, b.title 
+        FROM library_issues li
+        JOIN library_book_copies c ON li.book_copy_id = c.id
+        JOIN library_books b ON c.book_id = b.id
+        WHERE li.status IN ('issued') 
+          AND DATE(li.due_date) = DATE_ADD(CURDATE(), INTERVAL 1 DAY)
+    ");
+    $due_tomorrow = $stmt_due->fetchAll(PDO::FETCH_ASSOC);
+
+    echo "Found " . count($due_tomorrow) . " books due tomorrow.\n";
+
+    foreach ($due_tomorrow as $due) {
+        $user_id = (int)$due['user_id'];
+        $user_type = $due['user_type'];
+        $title = $due['title'];
+        
+        $ns->create(
+            $user_id,
+            $user_type,
+            '📚 Library Book Due Tomorrow',
+            "Your library book '{$title}' is due tomorrow. Please return it on time to avoid fines.",
+            'library_reminder',
+            (int)$due['id']
+        );
+        echo "[REMINDER] Sent due tomorrow alert for book '{$title}' to {$user_type} ID {$user_id}.\n";
+    }
+
+    // Overdue
+    $stmt_overdue = $pdo->query("
+        SELECT li.*, b.title, DATEDIFF(CURDATE(), li.due_date) as days_late 
+        FROM library_issues li
+        JOIN library_book_copies c ON li.book_copy_id = c.id
+        JOIN library_books b ON c.book_id = b.id
+        WHERE li.status IN ('issued', 'overdue') 
+          AND DATE(li.due_date) < CURDATE()
+          AND MOD(DATEDIFF(CURDATE(), li.due_date), 3) = 0 -- Remind every 3 days
+    ");
+    $overdue = $stmt_overdue->fetchAll(PDO::FETCH_ASSOC);
+
+    echo "Found " . count($overdue) . " books overdue (reminding today).\n";
+
+    foreach ($overdue as $od) {
+        $user_id = (int)$od['user_id'];
+        $user_type = $od['user_type'];
+        $title = $od['title'];
+        $days_late = $od['days_late'];
+        
+        $ns->create(
+            $user_id,
+            $user_type,
+            '⚠️ Library Book Overdue',
+            "Your library book '{$title}' is overdue by {$days_late} days. Please return it immediately. Daily fines are being applied.",
+            'library_reminder',
+            (int)$od['id']
+        );
+        echo "[REMINDER] Sent overdue alert for book '{$title}' to {$user_type} ID {$user_id}.\n";
+    }
+
+} catch (Exception $e) {
+    echo "[ERROR] Library reminders query failed: " . $e->getMessage() . "\n";
+}
+
+// ==========================
+// 4. INVENTORY LOW STOCK ALERTS
+// ==========================
+try {
+    $stmt_stock = $pdo->query("
+        SELECT item_name, current_stock, minimum_stock 
+        FROM inventory_items 
+        WHERE current_stock <= minimum_stock
+    ");
+    $low_stock = $stmt_stock->fetchAll(PDO::FETCH_ASSOC);
+
+    if (count($low_stock) > 0) {
+        // Send a consolidated alert to Admin ID 1
+        $item_list = array_map(function($i) { return $i['item_name'] . " (" . $i['current_stock'] . "/" . $i['minimum_stock'] . ")"; }, $low_stock);
+        $msg = "Low Stock Alert for " . count($low_stock) . " items: " . implode(", ", $item_list) . ". Please create Purchase Orders.";
+        
+        $ns->create(1, 'admin', '📉 Low Inventory Stock Alert', $msg, 'inventory_alert', 0);
+        echo "[REMINDER] Sent Low Stock Alert to Admin for " . count($low_stock) . " items.\n";
+    }
+} catch (Exception $e) {
+    echo "[ERROR] Inventory reminders query failed: " . $e->getMessage() . "\n";
+}
+
+// ==========================
+// 5. ASSET MAINTENANCE ALERTS
+// ==========================
+try {
+    $stmt_assets = $pdo->query("
+        SELECT id, asset_code, asset_name 
+        FROM assets 
+        WHERE status = 'maintenance'
+    ");
+    $maintenance_assets = $stmt_assets->fetchAll(PDO::FETCH_ASSOC);
+
+    foreach ($maintenance_assets as $asset) {
+        $ns->create(1, 'admin', '🔧 Asset In Maintenance', "Asset {$asset['asset_code']} ({$asset['asset_name']}) is currently in maintenance. Please track repair status.", 'asset_alert', $asset['id']);
+        echo "[REMINDER] Sent Maintenance Alert for Asset {$asset['asset_code']}.\n";
+    }
+} catch (Exception $e) {
+    echo "[ERROR] Asset reminders query failed: " . $e->getMessage() . "\n";
+}
+
 echo "=========================================\n";
 ?>

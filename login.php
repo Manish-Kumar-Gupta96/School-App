@@ -1,5 +1,11 @@
 <?php
 session_start();
+
+// Disable caching to prevent ERR_CACHE_MISS on browser back/refresh
+header("Cache-Control: no-cache, no-store, must-revalidate");
+header("Pragma: no-cache");
+header("Expires: 0");
+
 require_once('config/database.php');
 require_once('includes/AuthClass.php');
 
@@ -23,9 +29,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = "Please enter both email and password.";
         } else {
             try {
-                $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ? AND status = 'ACTIVE'");
-                $stmt->execute([$email]);
-                $user = $stmt->fetch(PDO::FETCH_ASSOC);
+                $client_ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+                $lockout_time = 15; // minutes
+                $max_attempts = 5;
+
+                $stmt_check = $pdo->prepare("SELECT COUNT(*) FROM login_attempts WHERE ip_address = ? AND attempt_time > (NOW() - INTERVAL ? MINUTE)");
+                $stmt_check->execute([$client_ip, $lockout_time]);
+                $attempts = $stmt_check->fetchColumn();
+
+                if ($attempts >= $max_attempts) {
+                    $error = "Too many failed login attempts. Please try again after 15 minutes.";
+                } else {
+                    $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ? AND status = 'ACTIVE'");
+                    $stmt->execute([$email]);
+                    $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
                 if ($user && password_verify($password, $user['password'])) {
                     $role_name = '';
@@ -55,9 +72,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     Auth::login($user, $role_name, $role_specific_id);
 
+                    // Clear login attempts on success
+                    $stmt_clear = $pdo->prepare("DELETE FROM login_attempts WHERE ip_address = ?");
+                    $stmt_clear->execute([$client_ip]);
+
+                    // Insert login_logs
+                    $stmt_log = $pdo->prepare("INSERT INTO login_logs (user_id, login_time, ip_address, device_info) VALUES (?, NOW(), ?, ?)");
+                    $stmt_log->execute([$user['id'], $client_ip, $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown']);
+                    $_SESSION['login_log_id'] = $pdo->lastInsertId();
+
                     // Log audit
                     $stmt_audit = $pdo->prepare("INSERT INTO audit_logs (user_id, action, ip_address) VALUES (?, ?, ?)");
-                    $stmt_audit->execute([$user['id'], "Login Successful", $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1']);
+                    $stmt_audit->execute([$user['id'], "Login Successful", $client_ip]);
+
+                    if (!empty($user['force_password_change'])) {
+                        header("Location: auth/change-password.php");
+                        exit;
+                    }
 
                     // Redirection based on role
                     if ($user['role_id'] == 1 || $user['role_id'] == 2) {
@@ -73,8 +104,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                     exit;
                 } else {
-                    $error = "Invalid active email or password.";
+                    // Log failed attempt
+                    $stmt_fail = $pdo->prepare("INSERT INTO login_attempts (ip_address, email) VALUES (?, ?)");
+                    $stmt_fail->execute([$client_ip, $email]);
+                    
+                    $remaining = $max_attempts - $attempts - 1;
+                    if ($remaining <= 0) {
+                        $error = "Too many failed login attempts. Please try again after 15 minutes.";
+                    } else {
+                        $error = "Invalid active email or password. $remaining attempts remaining.";
+                    }
                 }
+                } // End rate limit check else
             } catch (PDOException $e) {
                 $error = "Database Error: " . $e->getMessage();
             }

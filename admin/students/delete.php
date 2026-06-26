@@ -1,6 +1,9 @@
 <?php
 require_once('../../config/database.php');
 require_once('../../includes/auth.php');
+require_once('../../includes/access.php');
+
+requirePermission($pdo, 'students_delete');
 
 if(!isset($_GET['id'])){
     header("Location: index.php");

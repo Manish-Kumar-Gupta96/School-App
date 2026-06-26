@@ -2,119 +2,202 @@
 require_once('../../config/database.php');
 require_once('../../includes/auth.php');
 
-$search = $_GET['search'] ?? '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    if ($_POST['action'] === 'add_book') {
+        $title = trim($_POST['title']);
+        $category_id = (int)$_POST['category_id'];
+        $isbn = trim($_POST['isbn']);
+        $author = trim($_POST['author']);
+        $publisher = trim($_POST['publisher']);
+        $edition = trim($_POST['edition']);
+        $quantity = (int)$_POST['quantity'];
+        $rack_no = trim($_POST['rack_no']);
+        
+        if (!empty($title) && $category_id > 0 && $quantity > 0) {
+            try {
+                $pdo->beginTransaction();
+                
+                // Insert into library_books
+                $stmt = $pdo->prepare("INSERT INTO library_books (category_id, isbn, title, author, publisher, edition, quantity, available_quantity, rack_no) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->execute([$category_id, $isbn, $title, $author, $publisher, $edition, $quantity, $quantity, $rack_no]);
+                $book_id = $pdo->lastInsertId();
+                
+                // Insert copies
+                $copy_stmt = $pdo->prepare("INSERT INTO library_book_copies (book_id, barcode) VALUES (?, ?)");
+                for ($i = 1; $i <= $quantity; $i++) {
+                    $barcode = strtoupper(substr(md5($book_id . time() . $i), 0, 8)); // Generate a random barcode
+                    $copy_stmt->execute([$book_id, $barcode]);
+                }
+                
+                $pdo->commit();
+                $_SESSION['success'] = "Book and $quantity copies added successfully.";
+            } catch (Exception $e) {
+                $pdo->rollBack();
+                $_SESSION['error'] = "Failed to add book: " . $e->getMessage();
+            }
+        } else {
+            $_SESSION['error'] = "Please fill all required fields correctly.";
+        }
+        header("Location: books.php");
+        exit;
+    }
+}
 
-$stmt = $pdo->prepare("
-    SELECT *
-    FROM books
-    WHERE title LIKE ? OR author LIKE ? OR isbn LIKE ? OR book_code LIKE ?
-    ORDER BY id DESC
-");
-$stmt->execute([
-    "%$search%",
-    "%$search%",
-    "%$search%",
-    "%$search%"
-]);
-$books = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// Fetch categories for dropdown
+$categories = $pdo->query("SELECT * FROM library_categories ORDER BY category_name ASC")->fetchAll(PDO::FETCH_ASSOC);
 
-// Layout setup
+// Fetch books
+$books = $pdo->query("
+    SELECT b.*, c.category_name 
+    FROM library_books b 
+    LEFT JOIN library_categories c ON b.category_id = c.id 
+    ORDER BY b.id DESC
+")->fetchAll(PDO::FETCH_ASSOC);
+
 $root_path = "../../";
-$page_title = "Library Catalog | VIC ERP";
-$page_header = "Library Management";
+$page_title = "Library Books | VIC School ERP";
+$page_header = "Manage Library Books";
 $active_menu = "library";
 
 require_once('../includes/header.php');
 require_once('../includes/topbar.php');
 ?>
 
-<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap g-2">
-    <h5 class="text-muted mb-0">Browse and manage the school library catalog</h5>
-    <div class="d-flex gap-2">
-        <a href="add-book.php" class="btn btn-primary">
-            <i class="fa fa-plus-circle me-1"></i> Add Book
-        </a>
-        <a href="issue-book.php" class="btn btn-outline-primary">
-            <i class="fa fa-book-reader me-1"></i> Issue Book
-        </a>
-        <a href="return-book.php" class="btn btn-outline-success">
-            <i class="fa fa-undo-alt me-1"></i> Return Book
-        </a>
-        <a href="members.php" class="btn btn-outline-info">
-            <i class="fa fa-address-card me-1"></i> Members
-        </a>
-        <a href="reports.php" class="btn btn-outline-secondary">
-            <i class="fa fa-chart-pie me-1"></i> Reports
-        </a>
-    </div>
-</div>
+<div class="container mt-4">
+    <!-- Add Book Section -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white" data-bs-toggle="collapse" data-bs-target="#addBookForm" style="cursor:pointer;">
+            <h5 class="mb-0 fw-bold"><i class="fa fa-plus me-2 text-primary"></i>Add New Book <span class="float-end"><i class="fa fa-chevron-down"></i></span></h5>
+        </div>
+        <div id="addBookForm" class="collapse">
+            <div class="card-body">
+                <?php if (isset($_SESSION['success'])): ?>
+                    <div class="alert alert-success alert-dismissible fade show">
+                        <?= $_SESSION['success']; unset($_SESSION['success']); ?>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                <?php endif; ?>
+                <?php if (isset($_SESSION['error'])): ?>
+                    <div class="alert alert-danger alert-dismissible fade show">
+                        <?= $_SESSION['error']; unset($_SESSION['error']); ?>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                <?php endif; ?>
 
-<!-- SEARCH -->
-<form method="GET" class="mb-4">
-    <div class="input-group">
-        <input type="text" name="search" class="form-control" placeholder="Search by title, author, ISBN, or book code..." value="<?= htmlspecialchars($search) ?>">
-        <button class="btn btn-primary">
-            <i class="fa fa-search me-1"></i> Search
-        </button>
+                <form method="POST">
+                    <input type="hidden" name="action" value="add_book">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Book Title <span class="text-danger">*</span></label>
+                            <input type="text" name="title" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Category <span class="text-danger">*</span></label>
+                            <select name="category_id" class="form-select" required>
+                                <option value="">Select Category</option>
+                                <?php foreach($categories as $c): ?>
+                                    <option value="<?= $c['id'] ?>"><?= htmlspecialchars($c['category_name']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">ISBN</label>
+                            <input type="text" name="isbn" class="form-control">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Author</label>
+                            <input type="text" name="author" class="form-control">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Publisher</label>
+                            <input type="text" name="publisher" class="form-control">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Edition</label>
+                            <input type="text" name="edition" class="form-control">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Quantity <span class="text-danger">*</span></label>
+                            <input type="number" name="quantity" class="form-control" value="1" min="1" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Rack Number</label>
+                            <input type="text" name="rack_no" class="form-control">
+                        </div>
+                        <div class="col-12 mt-4 text-end">
+                            <button type="submit" class="btn btn-primary px-4"><i class="fa fa-save me-2"></i> Save Book & Generate Copies</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
-</form>
 
-<!-- INVENTORY CARD -->
-<div class="card shadow border-0" style="border-radius: 15px; overflow: hidden;">
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th class="ps-4">Book Details</th>
-                        <th>ISBN</th>
-                        <th>Author</th>
-                        <th>Category</th>
-                        <th class="text-center">Shelf</th>
-                        <th class="text-center">Price</th>
-                        <th class="text-center">Stock</th>
-                        <th class="text-center">Available</th>
-                        <th class="text-center">Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (count($books) > 0): ?>
-                        <?php foreach($books as $book): ?>
-                            <tr>
-                                <td class="ps-4">
-                                    <div class="fw-bold text-dark mb-0"><?= htmlspecialchars($book['title']) ?></div>
-                                    <span class="badge bg-secondary-subtle text-secondary small"><?= htmlspecialchars($book['book_code']) ?></span>
-                                </td>
-                                <td><span class="text-muted small"><?= htmlspecialchars($book['isbn'] ?: 'N/A') ?></span></td>
-                                <td class="fw-semibold text-primary"><?= htmlspecialchars($book['author'] ?: '-') ?></td>
-                                <td><?= htmlspecialchars($book['category'] ?: '-') ?></td>
-                                <td class="text-center"><?= htmlspecialchars($book['shelf_no'] ?: '-') ?></td>
-                                <td class="text-center fw-bold">₹ <?= number_format($book['book_price'] ?: 0.00, 2) ?></td>
-                                <td class="text-center fw-semibold"><?= (int)$book['quantity'] ?></td>
-                                <td class="text-center fw-semibold text-success"><?= (int)$book['available_quantity'] ?></td>
-                                <td class="text-center">
-                                    <?php if($book['available_quantity'] > 0): ?>
-                                        <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">Available</span>
-                                    <?php else: ?>
-                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2">Out Of Stock</span>
-                                    <?php endif; ?>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php else: ?>
+    <!-- Book List Section -->
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold"><i class="fa fa-list me-2 text-success"></i>Book Inventory</h5>
+            <input type="text" id="searchInput" class="form-control w-25" placeholder="Search by title, author...">
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="booksTable">
+                    <thead class="table-light">
                         <tr>
-                            <td colspan="9" class="text-center py-5 text-muted">
-                                <i class="fa fa-book-open fs-2 mb-2 d-block"></i>
-                                No books found in library catalog.
-                            </td>
+                            <th class="ps-4">Title & ISBN</th>
+                            <th>Category</th>
+                            <th>Author & Publisher</th>
+                            <th>Rack No</th>
+                            <th>Status</th>
+                            <th class="pe-4 text-center">Available/Total</th>
                         </tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        <?php if (count($books) > 0): ?>
+                            <?php foreach ($books as $b): ?>
+                                <tr>
+                                    <td class="ps-4">
+                                        <div class="fw-bold text-dark"><?= htmlspecialchars($b['title']) ?></div>
+                                        <div class="text-muted small">ISBN: <?= htmlspecialchars($b['isbn'] ?: 'N/A') ?></div>
+                                    </td>
+                                    <td><span class="badge bg-secondary"><?= htmlspecialchars($b['category_name']) ?></span></td>
+                                    <td>
+                                        <div class="text-dark"><?= htmlspecialchars($b['author'] ?: 'Unknown') ?></div>
+                                        <div class="text-muted small"><?= htmlspecialchars($b['publisher']) ?></div>
+                                    </td>
+                                    <td><?= htmlspecialchars($b['rack_no']) ?></td>
+                                    <td>
+                                        <?php if($b['status'] == 'available'): ?>
+                                            <span class="badge bg-success">Available</span>
+                                        <?php else: ?>
+                                            <span class="badge bg-danger">Unavailable</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="pe-4 text-center">
+                                        <span class="fw-bold text-primary fs-5"><?= $b['available_quantity'] ?></span> / <span class="text-muted"><?= $b['quantity'] ?></span>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr><td colspan="6" class="text-center py-5 text-muted">No books found in the library.</td></tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
 
-<?php
-require_once('../includes/footer.php');
-?>
+<script>
+document.getElementById('searchInput').addEventListener('keyup', function() {
+    let filter = this.value.toLowerCase();
+    let rows = document.querySelectorAll('#booksTable tbody tr');
+    
+    rows.forEach(row => {
+        let text = row.innerText.toLowerCase();
+        row.style.display = text.includes(filter) ? '' : 'none';
+    });
+});
+</script>
+
+<?php require_once('../includes/footer.php'); ?>

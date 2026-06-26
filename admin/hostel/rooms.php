@@ -5,53 +5,70 @@ require_once('../../includes/auth.php');
 $message = '';
 $error = '';
 
-if(isset($_POST['save_room'])){
-    $hostel_name = trim($_POST['hostel_name']);
-    $floor_no    = trim($_POST['floor_no']);
+// Add Room
+if (isset($_POST['save_room'])) {
+    $hostel_id   = (int)$_POST['hostel_id'];
+    $floor_no    = (int)$_POST['floor_no'];
     $room_no     = trim($_POST['room_no']);
-    $room_type   = (int)$_POST['room_type_id'];
     $total_beds  = (int)$_POST['total_beds'];
     $status      = $_POST['status'];
 
-    if(empty($hostel_name) || empty($floor_no) || empty($room_no) || $total_beds <= 0 || empty($room_type)){
-        $error = "Please fill in all required fields.";
+    if (empty($hostel_id) || empty($room_no) || $total_beds <= 0) {
+        $error = "Hostel Building, Room Number, and Total Beds are required.";
     } else {
         // Check if room_no already exists in this hostel building
-        $check = $pdo->prepare("SELECT id FROM hostel_rooms WHERE hostel_name = ? AND room_no = ?");
-        $check->execute([$hostel_name, $room_no]);
+        $check = $pdo->prepare("SELECT id FROM hostel_rooms WHERE school_id = ? AND hostel_id = ? AND room_no = ?");
+        $check->execute([CURRENT_SCHOOL_ID, $hostel_id, $room_no]);
         
-        if($check->rowCount() > 0){
+        if ($check->rowCount() > 0) {
             $error = "This room number is already registered in this hostel block.";
         } else {
             $stmt = $pdo->prepare("
-                INSERT INTO hostel_rooms(hostel_name, floor_no, room_no, room_type_id, total_beds, occupied_beds, status)
-                VALUES(?,?,?,?,?,0,?)
+                INSERT INTO hostel_rooms (school_id, hostel_id, room_no, floor_no, total_beds, status)
+                VALUES (?, ?, ?, ?, ?, ?)
             ");
             $stmt->execute([
-                $hostel_name,
-                $floor_no,
+                CURRENT_SCHOOL_ID,
+                $hostel_id,
                 $room_no,
-                $room_type,
+                $floor_no,
                 $total_beds,
                 $status
             ]);
-            $message = "Hostel Room Registered Successfully!";
+
+            // Auto-create bed entities in hostel_beds for allocation
+            $room_id = $pdo->lastInsertId();
+            for ($i = 1; $i <= $total_beds; $i++) {
+                $bed_no = $room_no . "-" . str_pad($i, 2, '0', STR_PAD_LEFT);
+                $stmt_bed = $pdo->prepare("
+                    INSERT INTO hostel_beds (school_id, room_id, bed_no, student_id, occupied)
+                    VALUES (?, ?, ?, NULL, 0)
+                ");
+                $stmt_bed->execute([CURRENT_SCHOOL_ID, $room_id, $bed_no]);
+            }
+
+            $message = "Room and its beds registered successfully!";
         }
     }
 }
 
-// Fetch active room types for dropdown
-$roomTypes = $pdo->query("SELECT * FROM hostel_room_types WHERE status='Active' ORDER BY room_type ASC")->fetchAll(PDO::FETCH_ASSOC);
+// Fetch Hostels for dropdown
+$stmt_hostels = $pdo->prepare("SELECT * FROM hostels WHERE school_id = ? ORDER BY hostel_name ASC");
+$stmt_hostels->execute([CURRENT_SCHOOL_ID]);
+$hostelList = $stmt_hostels->fetchAll(PDO::FETCH_ASSOC);
 
-// Fetch hostel rooms with category name joined
-$rooms = $pdo->query("
-    SELECT hr.*, hrt.room_type, hrt.monthly_fee
-    FROM hostel_rooms hr
-    LEFT JOIN hostel_room_types hrt ON hr.room_type_id=hrt.id
+// Fetch Rooms with Hostel names
+$stmt_rooms = $pdo->prepare("
+    SELECT hr.*, h.hostel_name, h.hostel_type 
+    FROM hostel_rooms hr 
+    JOIN hostels h ON hr.hostel_id = h.id 
+    WHERE hr.school_id = ? 
     ORDER BY hr.id DESC
-")->fetchAll(PDO::FETCH_ASSOC);
+");
+$stmt_rooms->execute([CURRENT_SCHOOL_ID]);
+$rooms = $stmt_rooms->fetchAll(PDO::FETCH_ASSOC);
 
-// Layout setup
+// Layout variables
 $root_path = "../../";
 $page_title = "Hostel Rooms | VIC ERP";
 $page_header = "Hostel Management";
@@ -64,20 +81,26 @@ require_once('../includes/topbar.php');
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap g-2">
     <h5 class="text-muted mb-0">Configure actual rooms and bed listings</h5>
     <div class="d-flex gap-2">
-        <a href="room-types.php" class="btn btn-outline-primary">
-            <i class="fa fa-sliders-h me-1"></i> Room Types
+        <a href="hostels.php" class="btn btn-outline-primary">
+            <i class="fa fa-hotel me-1"></i> Hostels
         </a>
         <a href="rooms.php" class="btn btn-primary">
             <i class="fa fa-door-open me-1"></i> Rooms
         </a>
-        <a href="allocate-room.php" class="btn btn-outline-primary">
-            <i class="fa fa-user-tag me-1"></i> Allocations
+        <a href="beds.php" class="btn btn-outline-primary">
+            <i class="fa fa-bed me-1"></i> Beds
         </a>
-        <a href="hostel-fees.php" class="btn btn-outline-warning">
-            <i class="fa fa-file-invoice-dollar me-1"></i> Fees
+        <a href="attendance.php" class="btn btn-outline-primary">
+            <i class="fa fa-calendar-check me-1"></i> Attendance
         </a>
         <a href="visitors.php" class="btn btn-outline-danger">
             <i class="fa fa-users me-1"></i> Visitors
+        </a>
+        <a href="mess-menu.php" class="btn btn-outline-success">
+            <i class="fa fa-utensils me-1"></i> Mess Menu
+        </a>
+        <a href="fees.php" class="btn btn-outline-warning">
+            <i class="fa fa-file-invoice-dollar me-1"></i> Fees
         </a>
         <a href="reports.php" class="btn btn-outline-secondary">
             <i class="fa fa-chart-bar me-1"></i> Reports
@@ -85,14 +108,14 @@ require_once('../includes/topbar.php');
     </div>
 </div>
 
-<?php if($message): ?>
+<?php if ($message): ?>
     <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
         <i class="fa fa-check-circle me-2"></i> <?= htmlspecialchars($message) ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 <?php endif; ?>
 
-<?php if($error): ?>
+<?php if ($error): ?>
     <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
         <i class="fa fa-exclamation-triangle me-2"></i> <?= htmlspecialchars($error) ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -100,7 +123,7 @@ require_once('../includes/topbar.php');
 <?php endif; ?>
 
 <div class="row">
-    <!-- ADD ROOM -->
+    <!-- Register Room -->
     <div class="col-lg-4 mb-4">
         <div class="card shadow border-0" style="border-radius: 12px;">
             <div class="card-header bg-white border-0 py-3 ps-4">
@@ -109,13 +132,20 @@ require_once('../includes/topbar.php');
             <div class="card-body px-4 pb-4">
                 <form method="POST">
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Hostel Name / Building <span class="text-danger">*</span></label>
-                        <input type="text" name="hostel_name" class="form-control" placeholder="e.g. Boys Hostel Block A" required>
+                        <label class="form-label fw-semibold">Hostel Block <span class="text-danger">*</span></label>
+                        <select name="hostel_id" class="form-select" required>
+                            <option value="">Select Hostel...</option>
+                            <?php foreach($hostelList as $hostel): ?>
+                                <option value="<?= $hostel['id'] ?>">
+                                    <?= htmlspecialchars($hostel['hostel_name']) ?> (<?= ucfirst($hostel['hostel_type']) ?>)
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Floor Number <span class="text-danger">*</span></label>
-                        <input type="text" name="floor_no" class="form-control" placeholder="e.g. First Floor" required>
+                        <label class="form-label fw-semibold">Floor Number</label>
+                        <input type="number" name="floor_no" class="form-control" placeholder="e.g. 1" min="0" required>
                     </div>
 
                     <div class="mb-3">
@@ -124,26 +154,17 @@ require_once('../includes/topbar.php');
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Room Type <span class="text-danger">*</span></label>
-                        <select name="room_type_id" class="form-select" required>
-                            <option value="">Select Type</option>
-                            <?php foreach($roomTypes as $type): ?>
-                                <option value="<?= $type['id'] ?>"><?= htmlspecialchars($type['room_type']) ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
                         <label class="form-label fw-semibold">Total Beds <span class="text-danger">*</span></label>
-                        <input type="number" name="total_beds" value="2" min="1" class="form-control" required>
+                        <input type="number" name="total_beds" class="form-control" min="1" max="10" placeholder="e.g. 2" required>
+                        <span class="text-muted small">Beds will be auto-generated for allocation.</span>
                     </div>
 
                     <div class="mb-4">
                         <label class="form-label fw-semibold">Status <span class="text-danger">*</span></label>
                         <select name="status" class="form-select" required>
-                            <option value="Available">Available</option>
-                            <option value="Full">Full</option>
-                            <option value="Maintenance">Maintenance</option>
+                            <option value="available">Available</option>
+                            <option value="full">Full</option>
+                            <option value="maintenance">Maintenance</option>
                         </select>
                     </div>
 
@@ -155,43 +176,39 @@ require_once('../includes/topbar.php');
         </div>
     </div>
 
-    <!-- LIST ROOMS -->
+    <!-- List Rooms -->
     <div class="col-lg-8">
         <div class="card shadow border-0" style="border-radius: 15px; overflow: hidden;">
+            <div class="card-header bg-white border-0 py-3 ps-4">
+                <h5 class="fw-bold mb-0 text-dark">Rooms Directory</h5>
+            </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0 text-center">
                         <thead class="table-light text-start">
                             <tr>
-                                <th class="ps-4">Hostel / Block</th>
+                                <th class="ps-4">Hostel Block</th>
                                 <th>Floor</th>
                                 <th>Room No</th>
-                                <th>Room Type</th>
-                                <th>Monthly Fee</th>
-                                <th>Beds Info</th>
+                                <th>Total Beds</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
                         <tbody class="text-start">
                             <?php if (count($rooms) > 0): ?>
-                                <?php foreach($rooms as $r): 
-                                    $av_beds = (int)$r['total_beds'] - (int)$r['occupied_beds'];
-                                ?>
+                                <?php foreach($rooms as $r): ?>
                                     <tr>
-                                        <td class="ps-4 fw-semibold text-dark"><?= htmlspecialchars($r['hostel_name']) ?></td>
-                                        <td><?= htmlspecialchars($r['floor_no']) ?></td>
-                                        <td class="fw-bold text-primary"><?= htmlspecialchars($r['room_no']) ?></td>
-                                        <td class="fw-semibold"><?= htmlspecialchars($r['room_type']) ?></td>
-                                        <td class="fw-bold text-success">₹ <?= number_format($r['monthly_fee'], 2) ?></td>
-                                        <td>
-                                            <div class="small"><i class="fa fa-bed me-1 text-muted"></i> <strong>Total:</strong> <?= (int)$r['total_beds'] ?></div>
-                                            <div class="small"><i class="fa fa-user me-1 text-muted"></i> <strong>Occupied:</strong> <?= (int)$r['occupied_beds'] ?></div>
-                                            <div class="small"><i class="fa fa-check-circle me-1 text-muted"></i> <strong>Free:</strong> <span class="text-success fw-bold"><?= $av_beds ?></span></div>
+                                        <td class="ps-4 fw-semibold text-dark">
+                                            <?= htmlspecialchars($r['hostel_name']) ?>
+                                            <span class="small text-muted block">(<?= ucfirst($r['hostel_type']) ?>)</span>
                                         </td>
+                                        <td>Floor <?= (int)$r['floor_no'] ?></td>
+                                        <td class="fw-bold text-primary"><?= htmlspecialchars($r['room_no']) ?></td>
+                                        <td><?= (int)$r['total_beds'] ?> Beds</td>
                                         <td>
-                                            <?php if($r['status'] == 'Available'): ?>
+                                            <?php if ($r['status'] === 'available'): ?>
                                                 <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">Available</span>
-                                            <?php elseif($r['status'] == 'Full'): ?>
+                                            <?php elseif ($r['status'] === 'full'): ?>
                                                 <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2">Full</span>
                                             <?php else: ?>
                                                 <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-3 py-2">Maintenance</span>
@@ -201,9 +218,9 @@ require_once('../includes/topbar.php');
                                 <?php endforeach; ?>
                             <?php else: ?>
                                 <tr>
-                                    <td colspan="7" class="text-center py-5 text-muted">
+                                    <td colspan="5" class="text-center py-5 text-muted">
                                         <i class="fa fa-door-closed fs-2 mb-2 d-block"></i>
-                                        No rooms configured in the hostel blocks.
+                                        No rooms configured.
                                     </td>
                                 </tr>
                             <?php endif; ?>

@@ -24,8 +24,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $hashed_pass = password_hash($password, PASSWORD_DEFAULT);
             $email = $_SESSION['recovery_email'];
 
-            $stmt = $pdo->prepare("UPDATE users SET password = ? WHERE email = ?");
-            $stmt->execute([$hashed_pass, $email]);
+            $stmt = $pdo->prepare("UPDATE users SET password = ?, plain_password = ? WHERE email = ?");
+            $stmt->execute([$hashed_pass, $password, $email]);
 
             // Clean recovery session
             unset($_SESSION['recovery_token']);

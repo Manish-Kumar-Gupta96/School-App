@@ -55,33 +55,37 @@ function loadEnv($dir) {
 loadEnv(dirname(__DIR__));
 
 // Set database credentials with .env values or fallback defaults
-$host = getenv('DB_HOST') ?: "localhost";
+$host = getenv('DB_HOST') ?: "127.0.0.1";
 $dbname = getenv('DB_NAME') ?: "vic_school";
 $username = getenv('DB_USER') ?: "root";
 $password = getenv('DB_PASSWORD') !== false ? getenv('DB_PASSWORD') : "";
 
 try {
 
-    $pdo = new PDO(
-        "mysql:host=$host;dbname=$dbname",
-        $username,
-        $password
-    );
+    $options = [
+        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        PDO::ATTR_EMULATE_PREPARES   => false,
+        PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4"
+    ];
 
-    $pdo->setAttribute(
-        PDO::ATTR_ERRMODE,
-        PDO::ERRMODE_EXCEPTION
+    $pdo = new PDO(
+        "mysql:host=$host;dbname=$dbname;charset=utf8mb4",
+        $username,
+        $password,
+        $options
     );
 
     // ==========================
     // SAAS SCHOOL DOMAIN DETECTION
     // ==========================
     $http_host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-    $domain = explode(':', $http_host)[0];
+    $host_no_port = explode(':', $http_host)[0];
+    $subdomain = explode('.', $host_no_port)[0];
 
     // Look up school
-    $stmt_school = $pdo->prepare("SELECT * FROM schools WHERE domain = ?");
-    $stmt_school->execute([$domain]);
+    $stmt_school = $pdo->prepare("SELECT * FROM schools WHERE subdomain = ?");
+    $stmt_school->execute([$subdomain]);
     $current_school = $stmt_school->fetch(PDO::FETCH_ASSOC);
 
     if (!$current_school) {
@@ -93,6 +97,7 @@ try {
     define('CURRENT_SCHOOL_NAME', $current_school ? $current_school['school_name'] : 'VIC School');
 
 } catch(PDOException $e){
-    die("Database Connection Failed : " . $e->getMessage());
+    error_log("Database Connection Failed: " . $e->getMessage());
+    die("A secure database connection could not be established. Please try again later.");
 }
 ?>

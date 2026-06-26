@@ -2,40 +2,63 @@
 require_once('../../config/database.php');
 require_once('../../includes/auth.php');
 
-/* ==========================
-HOSTEL SUMMARY
-========================== */
-$totalRooms = $pdo->query("SELECT COUNT(*) as total FROM hostel_rooms")->fetch(PDO::FETCH_ASSOC)['total'];
-$totalBeds = $pdo->query("SELECT IFNULL(SUM(total_beds),0) as total FROM hostel_rooms")->fetch(PDO::FETCH_ASSOC)['total'];
-$occupiedBeds = $pdo->query("SELECT IFNULL(SUM(occupied_beds),0) as total FROM hostel_rooms")->fetch(PDO::FETCH_ASSOC)['total'];
-$availableBeds = (int)$totalBeds - (int)$occupiedBeds;
+// Total Rooms
+$stmt_tr = $pdo->prepare("SELECT COUNT(*) FROM hostel_rooms WHERE school_id = ?");
+$stmt_tr->execute([CURRENT_SCHOOL_ID]);
+$totalRooms = $stmt_tr->fetchColumn();
 
-$totalStudents = $pdo->query("SELECT COUNT(*) as total FROM hostel_allocations WHERE status='Active'")->fetch(PDO::FETCH_ASSOC)['total'];
-$totalCollection = $pdo->query("SELECT IFNULL(SUM(amount),0) as total FROM hostel_fee_payments")->fetch(PDO::FETCH_ASSOC)['total'];
-$totalVisitors = $pdo->query("SELECT COUNT(*) as total FROM hostel_visitors")->fetch(PDO::FETCH_ASSOC)['total'];
+// Total Beds
+$stmt_tb = $pdo->prepare("SELECT COUNT(*) FROM hostel_beds WHERE school_id = ?");
+$stmt_tb->execute([CURRENT_SCHOOL_ID]);
+$totalBeds = $stmt_tb->fetchColumn();
 
-/* ==========================
-ROOM OCCUPANCY
-========================== */
-$occupancy = $pdo->query("
-    SELECT hr.hostel_name, hr.room_no, hr.total_beds, hr.occupied_beds, hrt.room_type
+// Occupied Beds
+$stmt_ob = $pdo->prepare("SELECT COUNT(*) FROM hostel_beds WHERE occupied = 1 AND school_id = ?");
+$stmt_ob->execute([CURRENT_SCHOOL_ID]);
+$occupiedBeds = $stmt_ob->fetchColumn();
+
+$availableBeds = $totalBeds - $occupiedBeds;
+
+// Total Residents
+$stmt_stud = $pdo->prepare("SELECT COUNT(DISTINCT student_id) FROM hostel_beds WHERE student_id IS NOT NULL AND school_id = ?");
+$stmt_stud->execute([CURRENT_SCHOOL_ID]);
+$totalStudents = $stmt_stud->fetchColumn();
+
+// Total Paid Fees Collection
+$stmt_fees = $pdo->prepare("SELECT IFNULL(SUM(amount), 0) FROM hostel_fees WHERE status = 'paid' AND school_id = ?");
+$stmt_fees->execute([CURRENT_SCHOOL_ID]);
+$totalCollection = $stmt_fees->fetchColumn();
+
+// Total Visitors
+$stmt_vis_count = $pdo->prepare("SELECT COUNT(*) FROM hostel_visitors WHERE school_id = ?");
+$stmt_vis_count->execute([CURRENT_SCHOOL_ID]);
+$totalVisitors = $stmt_vis_count->fetchColumn();
+
+// Room Occupancy Ledger
+$stmt_occ = $pdo->prepare("
+    SELECT hr.*, h.hostel_name, h.hostel_type,
+           (SELECT COUNT(*) FROM hostel_beds WHERE room_id = hr.id AND occupied = 1) AS occupied_beds
     FROM hostel_rooms hr
-    LEFT JOIN hostel_room_types hrt ON hr.room_type_id = hrt.id
-    ORDER BY hr.hostel_name, hr.room_no
-")->fetchAll(PDO::FETCH_ASSOC);
+    JOIN hostels h ON hr.hostel_id = h.id
+    WHERE hr.school_id = ?
+    ORDER BY h.hostel_name ASC, hr.room_no ASC
+");
+$stmt_occ->execute([CURRENT_SCHOOL_ID]);
+$occupancy = $stmt_occ->fetchAll(PDO::FETCH_ASSOC);
 
-/* ==========================
-VISITOR REPORT
-========================== */
-$visitorReport = $pdo->query("
-    SELECT hv.visitor_name, hv.relation_with_student, hv.entry_time, hv.exit_time, s.first_name, s.last_name, s.admission_no
+// Visitor Report
+$stmt_vis_rep = $pdo->prepare("
+    SELECT hv.*, s.first_name, s.last_name, s.admission_no
     FROM hostel_visitors hv
-    LEFT JOIN students s ON hv.student_id = s.id
+    JOIN students s ON hv.student_id = s.id
+    WHERE hv.school_id = ?
     ORDER BY hv.id DESC
     LIMIT 10
-")->fetchAll(PDO::FETCH_ASSOC);
+");
+$stmt_vis_rep->execute([CURRENT_SCHOOL_ID]);
+$visitorReport = $stmt_vis_rep->fetchAll(PDO::FETCH_ASSOC);
 
-// Layout setup
+// Layout variables
 $root_path = "../../";
 $page_title = "Hostel Analytics | VIC ERP";
 $page_header = "Hostel Analytics Board";
@@ -45,11 +68,34 @@ require_once('../includes/header.php');
 require_once('../includes/topbar.php');
 ?>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap g-2">
     <h5 class="text-muted mb-0">Overview of hostel rooms, occupied beds, visitors, and collections</h5>
-    <a href="room-types.php" class="btn btn-secondary">
-        <i class="fa fa-arrow-left me-1"></i> Back to Configurations
-    </a>
+    <div class="d-flex gap-2">
+        <a href="hostels.php" class="btn btn-outline-primary">
+            <i class="fa fa-hotel me-1"></i> Hostels
+        </a>
+        <a href="rooms.php" class="btn btn-outline-primary">
+            <i class="fa fa-door-open me-1"></i> Rooms
+        </a>
+        <a href="beds.php" class="btn btn-outline-primary">
+            <i class="fa fa-bed me-1"></i> Beds
+        </a>
+        <a href="attendance.php" class="btn btn-outline-primary">
+            <i class="fa fa-calendar-check me-1"></i> Attendance
+        </a>
+        <a href="visitors.php" class="btn btn-outline-danger">
+            <i class="fa fa-users me-1"></i> Visitors
+        </a>
+        <a href="mess-menu.php" class="btn btn-outline-success">
+            <i class="fa fa-utensils me-1"></i> Mess Menu
+        </a>
+        <a href="fees.php" class="btn btn-outline-warning">
+            <i class="fa fa-file-invoice-dollar me-1"></i> Fees
+        </a>
+        <a href="reports.php" class="btn btn-primary">
+            <i class="fa fa-chart-bar me-1"></i> Reports
+        </a>
+    </div>
 </div>
 
 <!-- SUMMARY CARDS -->
@@ -109,7 +155,7 @@ require_once('../includes/topbar.php');
             <div class="card-body py-3 px-2">
                 <i class="fa fa-money-bill-wave fs-2 mb-1 opacity-75"></i>
                 <h4 class="fw-bold mb-0" style="font-size: 1.15rem;">₹ <?= number_format($totalCollection, 2) ?></h4>
-                <span class="text-uppercase small" style="font-size: 0.72rem;">Billing</span>
+                <span class="text-uppercase small" style="font-size: 0.72rem;">Paid Billing</span>
             </div>
         </div>
     </div>
@@ -127,27 +173,34 @@ require_once('../includes/topbar.php');
                     <table class="table table-hover align-middle mb-0 text-center">
                         <thead class="table-light text-start">
                             <tr>
-                                <th class="ps-4">Hostel / Block</th>
+                                <th class="ps-4">Hostel Block</th>
                                 <th>Room</th>
-                                <th>Category</th>
                                 <th>Total Beds</th>
                                 <th>Occupied</th>
                                 <th>Beds Free</th>
                             </tr>
                         </thead>
                         <tbody class="text-start">
-                            <?php foreach($occupancy as $room): 
-                                $free = $room['total_beds'] - $room['occupied_beds'];
-                            ?>
+                            <?php if (count($occupancy) > 0): ?>
+                                <?php foreach($occupancy as $room): 
+                                    $free = $room['total_beds'] - $room['occupied_beds'];
+                                ?>
+                                    <tr>
+                                        <td class="ps-4 fw-semibold">
+                                            <?= htmlspecialchars($room['hostel_name']) ?>
+                                            <span class="small text-muted block">(<?= ucfirst($room['hostel_type']) ?>)</span>
+                                        </td>
+                                        <td class="fw-bold text-primary">Room <?= htmlspecialchars($room['room_no']) ?></td>
+                                        <td><?= (int)$room['total_beds'] ?></td>
+                                        <td><?= (int)$room['occupied_beds'] ?></td>
+                                        <td class="fw-bold text-success"><?= $free ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
                                 <tr>
-                                    <td class="ps-4 fw-semibold"><?= htmlspecialchars($room['hostel_name']) ?></td>
-                                    <td class="fw-bold text-primary">Room <?= htmlspecialchars($room['room_no']) ?></td>
-                                    <td><?= htmlspecialchars($room['room_type']) ?></td>
-                                    <td><?= (int)$room['total_beds'] ?></td>
-                                    <td><?= (int)$room['occupied_beds'] ?></td>
-                                    <td class="fw-bold text-success"><?= $free ?></td>
+                                    <td colspan="5" class="text-center py-5 text-muted">No room listings found.</td>
                                 </tr>
-                            <?php endforeach; ?>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
@@ -160,7 +213,7 @@ require_once('../includes/topbar.php');
         <div class="card shadow border-0" style="border-radius: 15px; overflow: hidden;">
             <div class="card-header bg-white border-0 py-3 ps-4 d-flex justify-content-between align-items-center">
                 <h5 class="fw-bold mb-0 text-dark"><i class="fa fa-users text-danger me-2"></i> Recent Visitors Log</h5>
-                <span class="badge bg-danger">Total: <?= $totalVisitors ?></span>
+                <span class="badge bg-danger">Total Logs: <?= $totalVisitors ?></span>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -170,7 +223,6 @@ require_once('../includes/topbar.php');
                                 <th class="ps-4">Visitor</th>
                                 <th>Student Met</th>
                                 <th>Check-In</th>
-                                <th>Status</th>
                             </tr>
                         </thead>
                         <tbody class="text-start">
@@ -179,25 +231,18 @@ require_once('../includes/topbar.php');
                                     <tr>
                                         <td class="ps-4">
                                             <div class="fw-bold text-dark mb-0"><?= htmlspecialchars($visitor['visitor_name']) ?></div>
-                                            <span class="text-muted small">Relation: <?= htmlspecialchars($visitor['relation_with_student'] ?: '-') ?></span>
+                                            <span class="text-muted small">Relation: <?= htmlspecialchars($visitor['relation_name'] ?: '-') ?></span>
                                         </td>
                                         <td>
                                             <div class="fw-semibold text-primary mb-0"><?= htmlspecialchars($visitor['first_name'] . ' ' . $visitor['last_name']) ?></div>
                                             <span class="badge bg-secondary-subtle text-secondary small"><?= htmlspecialchars($visitor['admission_no']) ?></span>
                                         </td>
-                                        <td><span class="small text-muted"><i class="fa fa-clock text-success me-1"></i> <?= date('d M Y h:i A', strtotime($visitor['entry_time'])) ?></span></td>
-                                        <td>
-                                            <?php if($visitor['exit_time']): ?>
-                                                <span class="badge bg-success-subtle text-success border border-success-subtle">Exited</span>
-                                            <?php else: ?>
-                                                <span class="badge bg-warning-subtle text-warning border border-warning-subtle">Inside</span>
-                                            <?php endif; ?>
-                                        </td>
+                                        <td><span class="small text-muted"><i class="fa fa-clock text-success me-1"></i> <?= date('d M Y h:i A', strtotime($visitor['visit_time'])) ?></span></td>
                                     </tr>
                                 <?php endforeach; ?>
                             <?php else: ?>
                                 <tr>
-                                    <td colspan="4" class="text-center py-5 text-muted">No visitors registered.</td>
+                                    <td colspan="3" class="text-center py-5 text-muted">No visitors registered.</td>
                                 </tr>
                             <?php endif; ?>
                         </tbody>

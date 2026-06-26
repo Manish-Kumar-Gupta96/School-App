@@ -4,6 +4,7 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 require_once(__DIR__ . '/../config/database.php');
+require_once(__DIR__ . '/permissions.php');
 
 if(!isset($_SESSION['user_id']) || !isset($_SESSION['role'])){
     $execScript = str_replace('\\', '/', realpath($_SERVER['SCRIPT_FILENAME']) ?: $_SERVER['SCRIPT_FILENAME']);
@@ -63,6 +64,10 @@ if ($email) {
         if ($user) {
             $_SESSION['parent_id'] = $user['id'];
         }
+    } elseif ($_SESSION['role'] === 'guard') {
+        // Guards are considered staff, but we can just use the user ID
+        $user = ['id' => $user_id, 'email' => $email, 'first_name' => 'Security', 'last_name' => 'Guard'];
+        $_SESSION['guard_id'] = $user['id'];
     }
 }
 

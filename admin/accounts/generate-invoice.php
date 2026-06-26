@@ -16,7 +16,7 @@ $success_msg = isset($_GET['success']) ? 'Subscription activated successfully!' 
 $invoice = null;
 try {
     $stmt = $pdo->prepare("
-        SELECT i.*, s.plan_name, s.start_date, s.end_date, sch.school_name, sch.domain
+        SELECT i.*, s.plan_name, s.start_date, s.end_date, sch.school_name, sch.subdomain
         FROM invoices i
         LEFT JOIN subscriptions s ON i.subscription_id = s.id
         LEFT JOIN schools sch ON i.school_id = sch.id
@@ -82,7 +82,7 @@ require_once($root_path . 'admin/includes/topbar.php');
             <div class="col-sm-6">
                 <h6 class="text-muted fw-bold">BILLED TO:</h6>
                 <h5 class="fw-bold text-dark mb-1"><?= htmlspecialchars($invoice['school_name']) ?></h5>
-                <p class="text-muted small mb-0">Associated Domain: <?= htmlspecialchars($invoice['domain']) ?></p>
+                <p class="text-muted small mb-0">Associated Domain: <?= htmlspecialchars($invoice['subdomain']) ?>.schoolos.com</p>
             </div>
             <div class="col-sm-6 text-sm-end">
                 <h6 class="text-muted fw-bold">PAYMENT STATUS:</h6>
