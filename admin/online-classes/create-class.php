@@ -82,11 +82,6 @@ if (isset($_POST['save_class'])) {
                     $meeting_id = $g_code;
                     $meeting_link = "https://meet.google.com/" . $g_code;
                 }
-            } else {
-                // JITSI Meet
-                $unique_id = bin2hex(random_bytes(4));
-                $meeting_id = "vicschool-" . $class_id . "-" . $subject_id . "-" . $unique_id;
-                $meeting_link = "https://meet.jit.si/" . $meeting_id;
             }
         }
 
@@ -204,7 +199,7 @@ require_once($root_path . 'admin/includes/topbar.php');
                 <select name="platform" id="platform" class="form-select" style="border-radius: 8px;">
                     <option value="ZOOM">Zoom Meetings</option>
                     <option value="GOOGLE_MEET">Google Meet</option>
-                    <option value="JITSI">Jitsi Meet (Free)</option>
+
                 </select>
             </div>
 

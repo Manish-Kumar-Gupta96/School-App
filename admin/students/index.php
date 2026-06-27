@@ -13,15 +13,17 @@ $search = $_GET['search'] ?? '';
 $sql = "
 SELECT *
 FROM students
-WHERE first_name LIKE :search
-OR last_name LIKE :search
-OR admission_no LIKE :search
+WHERE first_name LIKE :search1
+OR last_name LIKE :search2
+OR admission_no LIKE :search3
 ORDER BY id DESC
 ";
 
 $stmt = $pdo->prepare($sql);
 $stmt->execute([
-    'search' => "%$search%"
+    'search1' => "%$search%",
+    'search2' => "%$search%",
+    'search3' => "%$search%"
 ]);
 $students = $stmt->fetchAll();
 

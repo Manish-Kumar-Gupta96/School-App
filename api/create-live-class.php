@@ -1,129 +1,61 @@
 <?php
-require_once '../config/database.php';
-require_once '../helpers/security.php';
+header('Content-Type: application/json; charset=utf-8');
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../includes/SessionManager.php';
+require_once __DIR__ . '/../includes/AuditLogger.php';
 
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
+SessionManager::startSecureSession();
 
-header('Content-Type: application/json');
-
-// Ensure teacher is logged in
-if (!isset($_SESSION['teacher_id'])) {
+// Restrict entry exclusively to Authorized roles (Admins and Teachers)
+$currentRole = $_SESSION['user_role'] ?? null;
+if (!in_array($currentRole, ['admin', 'superadmin', 'teacher'])) {
     http_response_code(403);
-    echo json_encode(['success' => false, 'error' => 'Unauthorized access']);
+    echo json_encode(['status' => false, 'message' => 'Access Denied. Insufficient operational scope.']);
     exit;
 }
 
-$teacherId = $_SESSION['teacher_id'];
-
-$classId   = isset($_POST['class_id']) ? (int)$_POST['class_id'] : 0;
-$sectionId = isset($_POST['section_id']) ? (int)$_POST['section_id'] : 0;
-$subjectId = isset($_POST['subject_id']) ? (int)$_POST['subject_id'] : 0;
-
-if (!canTeacherCreateClass(
-    $pdo,
-    $teacherId,
-    $classId,
-    $sectionId,
-    $subjectId
-)) {
-    http_response_code(403);
-    echo json_encode(['success' => false, 'error' => 'Access denied']);
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    echo json_encode(['status' => false, 'message' => 'Only POST requests are evaluated.']);
     exit;
 }
 
-$title = isset($_POST['title']) ? trim($_POST['title']) : '';
-$provider = isset($_POST['provider']) ? strtolower(trim($_POST['provider'])) : 'zoom';
-$meeting_link = isset($_POST['meeting_link']) ? trim($_POST['meeting_link']) : '';
-$start_time = isset($_POST['start_time']) ? trim($_POST['start_time']) : '';
-$end_time = isset($_POST['end_time']) ? trim($_POST['end_time']) : '';
+// Extract properties out of input payloads
+$classId = filter_input(INPUT_POST, 'class_id', FILTER_VALIDATE_INT);
+$topic = filter_input(INPUT_POST, 'topic', FILTER_SANITIZE_SPECIAL_CHARS);
+$startTime = $_POST['start_time'] ?? '';
+$platform = filter_input(INPUT_POST, 'platform', FILTER_SANITIZE_SPECIAL_CHARS); // ZOOM or GOOGLE_MEET
+$meetingUrl = filter_input(INPUT_POST, 'meeting_url', FILTER_VALIDATE_URL);
 
-// 1. Resolve Class Name, Section Name, and Subject Name for backwards compatibility
-$stmt_c = $pdo->prepare("SELECT class_name FROM classes WHERE id = ?");
-$stmt_c->execute([$classId]);
-$c_name = $stmt_c->fetchColumn() ?: '';
-
-$stmt_s = $pdo->prepare("SELECT section_name FROM sections WHERE id = ?");
-$stmt_s->execute([$sectionId]);
-$s_name = $stmt_s->fetchColumn() ?: '';
-
-$stmt_sub = $pdo->prepare("SELECT subject_name FROM subjects WHERE id = ?");
-$stmt_sub->execute([$subjectId]);
-$sub_name = $stmt_sub->fetchColumn() ?: '';
-
-$class_name = ($c_name !== '' && $s_name !== '') ? $c_name . "-" . $s_name : "";
-$subject = $sub_name;
-
-// 2. Set provider mapping
-$platform = strtoupper($provider);
-if ($platform === 'GOOGLE_MEET') {
-    $platform = 'GOOGLE_MEET';
+if (!$classId || empty($topic) || empty($startTime) || !$meetingUrl || !in_array($platform, ['ZOOM', 'GOOGLE_MEET'])) {
+    http_response_code(400);
+    echo json_encode(['status' => false, 'message' => 'Malformed dataset. Please verify URLs and tracking metrics.']);
+    exit;
 }
 
-$meeting_id = '';
-if ($provider === 'zoom') {
-    if (preg_match('/\/j\/([0-9]+)/', $meeting_link, $m)) {
-        $meeting_id = $m[1];
-    }
-} elseif ($provider === 'google_meet') {
-    if (preg_match('/meet\.google\.com\/([a-z0-9\-]+)/', $meeting_link, $m)) {
-        $meeting_id = $m[1];
-    }
-}
-
-// 3. Insert class details
 try {
-    $stmt = $pdo->prepare("
-        INSERT INTO online_classes (
-            teacher_id,
-            class_id,
-            section_id,
-            subject_id,
-            title,
-            meeting_provider,
-            meeting_link,
-            start_time,
-            end_time,
-            status,
-            class_name,
-            subject,
-            platform,
-            meeting_id
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'scheduled', ?, ?, ?, ?)
-    ");
-
+    $db = getDBConnection();
+    
+    $query = "INSERT INTO live_classes (class_id, teacher_id, topic, start_time, platform, meeting_url, status, created_at) 
+              VALUES (:class_id, :teacher_id, :topic, :start_time, :platform, :meeting_url, 'SCHEDULED', NOW())";
+              
+    $stmt = $db->prepare($query);
     $stmt->execute([
-        $teacherId,
-        $classId,
-        $sectionId,
-        $subjectId,
-        $title,
-        $provider,
-        $meeting_link,
-        $start_time,
-        $end_time,
-        $class_name,
-        $subject,
-        $platform,
-        $meeting_id
+        ':class_id'   => $classId,
+        ':teacher_id' => $_SESSION['user_id'],
+        ':topic'      => $topic,
+        ':start_time' => $startTime,
+        ':platform'   => $platform,
+        ':meeting_url'=> $meetingUrl
     ]);
 
-    $new_class_id = $pdo->lastInsertId();
+    // Track state change inside immutable database records
+    AuditLogger::log('LIVE_CLASS_CREATED', "Topic: {$topic} scheduled via platform: {$platform}");
 
-    // 4. Trigger live class scheduled notifications (which queues alerts in notification_queue)
-    require_once('../helpers/notification_helper.php');
-    notifyLiveClassScheduled($pdo, $new_class_id);
-
-    echo json_encode([
-        'success' => true,
-        'class_id' => $new_class_id
-    ]);
+    http_response_code(201);
+    echo json_encode(['status' => true, 'message' => 'Live class session synchronized successfully. Notification triggers initialized.']);
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'error' => 'Database error: ' . $e->getMessage()
-    ]);
+    echo json_encode(['status' => false, 'message' => 'Database Sync Fault: ' . $e->getMessage()]);
 }
 ?>

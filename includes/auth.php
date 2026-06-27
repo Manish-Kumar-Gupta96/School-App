@@ -15,7 +15,7 @@ if(!isset($_SESSION['user_id']) || !isset($_SESSION['role'])){
         $backPath = str_repeat('../', $dirCount);
         header("Location: " . $backPath . "login.php");
     } else {
-        header("Location: /login.php");
+        header("Location: /school-app/login.php");
     }
     exit();
 }
@@ -88,4 +88,3 @@ function checkPermission($role_id, $module, $action, $pdo){
     $stmt->execute([$role_id, $module]);
     return (bool)$stmt->fetchColumn();
 }
-?>

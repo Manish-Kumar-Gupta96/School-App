@@ -1,6 +1,6 @@
 <?php
 
-function hasPermission(PDO $pdo, int $roleId, string $permission): bool
+function hasRolePermission(PDO $pdo, int $roleId, string $permission): bool
 {
     // Note: The prompt mentioned using user_roles table, but our current system has 'role_id' directly in users table (via $roleId parameter we pass).
     // So we just check if the given roleId has the requested permission mapped in role_permissions.

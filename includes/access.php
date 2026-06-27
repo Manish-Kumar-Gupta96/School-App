@@ -8,13 +8,13 @@ function requirePermission($pdo, $permission)
     }
 
     if (!isset($_SESSION['user_id'])) {
-        header("Location: /login.php");
+        header("Location: /school-app/login.php");
         exit();
     }
 
     if (!hasPermission($pdo, $_SESSION['user_id'], $permission)) {
         // Redirect to a 403 page or dashboard with error
-        header("Location: /index.php?error=access_denied");
+        header("Location: /school-app/index.php?error=access_denied");
         exit();
     }
 }
@@ -26,12 +26,12 @@ function requireRole($role)
     }
 
     if (!isset($_SESSION['role'])) {
-        header("Location: /login.php");
+        header("Location: /school-app/login.php");
         exit();
     }
 
     if ($_SESSION['role'] !== $role) {
-        header("Location: /index.php?error=access_denied");
+        header("Location: /school-app/index.php?error=access_denied");
         exit();
     }
 }

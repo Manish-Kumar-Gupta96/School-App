@@ -103,7 +103,8 @@
 <script src="assets/js/app.js"></script>
 
 <!-- AI Floating Chat Widget -->
-<?php include(__DIR__ . '/../ai/chat.php'); ?>
+<iframe src="/school-app/ai/chat.php" id="aiChatWidget" style="position:fixed; bottom:20px; right:20px; width:400px; height:500px; border:none; border-radius:15px; box-shadow:0 4px 15px rgba(0,0,0,0.15); z-index:9999; display:none;"></iframe>
+<button onclick="document.getElementById('aiChatWidget').style.display = document.getElementById('aiChatWidget').style.display === 'none' ? 'block' : 'none';" style="position:fixed; bottom:20px; right:20px; width:60px; height:60px; border-radius:50%; background:#0f4c81; color:#fff; border:none; box-shadow:0 4px 10px rgba(0,0,0,0.2); z-index:10000; font-size:24px; cursor:pointer;"><i class="fa-solid fa-message"></i></button>
 
 </body>
 </html>

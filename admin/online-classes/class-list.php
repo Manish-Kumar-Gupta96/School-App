@@ -131,8 +131,6 @@ require_once($root_path . 'admin/includes/topbar.php');
                                         <span class="badge bg-primary-subtle text-primary"><i class="fa fa-video me-1"></i> Zoom</span>
                                     <?php elseif ($c['platform'] === 'GOOGLE_MEET'): ?>
                                         <span class="badge bg-success-subtle text-success"><i class="fa fa-calendar me-1"></i> Meet</span>
-                                    <?php else: ?>
-                                        <span class="badge bg-warning-subtle text-warning"><i class="fa fa-circle-nodes me-1"></i> Jitsi</span>
                                     <?php endif; ?>
                                 </td>
                                 <td class="small text-muted">

@@ -1,0 +1,20 @@
+RewriteEngine On
+RewriteBase /school-app/
+
+# Remove .php extension from URL publicly
+RewriteCond %{THE_REQUEST} ^[A-Z]{3,}\s([^.]+)\.php [NC]
+RewriteRule ^ %1 [R=301,L]
+
+# Internal redirection to .php file if it exists
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^(.*?)/?$ $1.php [L]
+
+# Prevent Directory Browsing
+Options -Indexes
+
+# Case-insensitivity helper via Speling module (if enabled in XAMPP)
+<IfModule mod_speling.c>
+    CheckSpelling On
+    CheckCaseOnly On
+</IfModule>

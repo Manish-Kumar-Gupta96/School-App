@@ -1,20 +1,22 @@
 <?php
-function success($data) {
-    header('Content-Type: application/json; charset=UTF-8');
-    echo json_encode([
-        'status' => true,
-        'data' => $data
-    ]);
-    exit;
-}
-
-function error($message, $code = 400) {
-    header('Content-Type: application/json; charset=UTF-8');
-    http_response_code($code);
-    echo json_encode([
-        'status' => false,
-        'message' => $message
-    ]);
-    exit;
+class ApiResponse {
+    public static function send($statusCode, $status, $message, $data = null) {
+        if (!headers_sent()) {
+            http_response_code($statusCode);
+            header('Content-Type: application/json; charset=utf-8');
+        }
+        
+        $response = [
+            'status' => (bool)$status,
+            'message' => htmlspecialchars($message, ENT_QUOTES, 'UTF-8')
+        ];
+        
+        if ($data !== null) {
+            $response['data'] = $data;
+        }
+        
+        echo json_encode($response, JSON_UNESCAPED_UNICODE);
+        exit;
+    }
 }
 ?>

@@ -1,18 +1,24 @@
 <?php
 function hasPermission($pdo, $userId, $permission)
 {
-    // First check if user is super_admin
+    // First check if user is super_admin or admin
     $roleCheck = $pdo->prepare("
-        SELECT r.role_name
+        SELECT r.role_name, u.role_id
         FROM users u
         JOIN roles r ON r.id = u.role_id
         WHERE u.id = ?
     ");
     $roleCheck->execute([$userId]);
-    $role = $roleCheck->fetchColumn();
+    $userRoleData = $roleCheck->fetch(PDO::FETCH_ASSOC);
 
-    if ($role === 'super_admin') {
-        return true;
+    if ($userRoleData) {
+        $roleName = strtolower(trim($userRoleData['role_name']));
+        $roleId = $userRoleData['role_id'];
+        
+        // Grant full access to superadmins and admins
+        if (in_array($roleName, ['super_admin', 'super admin', 'admin', 'school admin']) || in_array($roleId, [1, 2, 6, 7])) {
+            return true;
+        }
     }
 
     // Check for user-specific override

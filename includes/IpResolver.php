@@ -1,37 +1,28 @@
 <?php
+class IpResolver {
+    /**
+     * Resolves real origin IP matching dynamic forwarding conditions
+     */
+    public static function resolve() {
+        $ip = '127.0.0.1';
 
-declare(strict_types=1);
-
-/**
- * -------------------------------------------------------------
- * VIC School ERP Enterprise v2.0
- * IP Resolver
- * -------------------------------------------------------------
- */
-
-class IpResolver
-{
-    public function getClientIp(): string
-    {
-        $keys = [
-            'HTTP_CF_CONNECTING_IP',   // Cloudflare
-            'HTTP_CLIENT_IP',
-            'HTTP_X_FORWARDED_FOR',
-            'HTTP_X_REAL_IP',
-            'REMOTE_ADDR'
-        ];
-
-        foreach ($keys as $key) {
-            if (!empty($_SERVER[$key])) {
-                $ips = explode(',', $_SERVER[$key]);
-                foreach ($ips as $ip) {
-                    $ip = trim($ip);
-                    if (filter_var($ip, FILTER_VALIDATE_IP)) {
-                        return $ip;
-                    }
-                }
-            }
+        // Check standard reverse proxy header groups safely
+        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+            $ip = $_SERVER['HTTP_CLIENT_IP'];
+        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            // Can contain comma-separated multiple hops list
+            $parts = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+            $ip = trim($parts[0]);
+        } elseif (!empty($_SERVER['REMOTE_ADDR'])) {
+            $ip = $_SERVER['REMOTE_ADDR'];
         }
-        return '0.0.0.0';
+
+        // Clean internal IPv6 local loopback mapping representation to standard local IP
+        if ($ip === '::1') {
+            $ip = '127.0.0.1';
+        }
+
+        return filter_var($ip, FILTER_VALIDATE_IP) ? $ip : '127.0.0.1';
     }
 }
+?>

@@ -137,6 +137,16 @@ if (!isset($root_path)) {
     <a href="profile.php" class="<?= (isset($active_menu) && $active_menu == 'profile') ? 'active' : '' ?>">
         <i class="fa fa-id-badge"></i> <span>My Profile</span>
     </a>
+    
+    <!-- New Security & HR Features -->
+    <a href="<?= $root_path ?>staff/submit-notice.php" class="<?= (isset($active_menu) && $active_menu == 'resignation') ? 'active' : '' ?>">
+        <i class="fa fa-file-signature"></i> <span>Submit Notice</span>
+    </a>
+    <a href="<?= $root_path ?>modules/auth/claim-access.php">
+        <i class="fa fa-key"></i> <span>Claim OTP Access</span>
+    </a>
+    <!-- /New Features -->
+
     <a href="logout.php" class="text-danger mt-4">
         <i class="fa fa-sign-out-alt text-danger"></i> <span>Logout</span>
     </a>

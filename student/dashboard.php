@@ -129,8 +129,6 @@ try {
                                             <span class="badge bg-primary-subtle text-primary small"><i class="fa fa-video me-1"></i> Zoom</span>
                                         <?php elseif ($c['platform'] === 'GOOGLE_MEET'): ?>
                                             <span class="badge bg-success-subtle text-success small"><i class="fa fa-calendar me-1"></i> Meet</span>
-                                        <?php else: ?>
-                                            <span class="badge bg-warning-subtle text-warning small"><i class="fa fa-circle-nodes me-1"></i> Jitsi</span>
                                         <?php endif; ?>
                                     </div>
                                     <div>

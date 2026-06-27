@@ -1,109 +1,52 @@
 <?php
-header("Access-Control-Allow-Origin: *");
-header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: POST");
-header("Access-Control-Max-Age: 3600");
-header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
-
-require_once('../../config/database.php');
-require_once('../middleware/JwtAuth.php');
+header('Content-Type: application/json; charset=utf-8');
+require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../includes/AuthClass.php'; 
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    JwtAuth::jsonError("Method not allowed", 405);
+    http_response_code(405);
+    echo json_encode(['status' => false, 'message' => 'Method Not Allowed']);
+    exit;
 }
 
-$data = json_decode(file_get_contents("php://input"), true);
+// Input values sanitization
+$username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_SPECIAL_CHARS);
+$password = $_POST['password'] ?? '';
 
-if (empty($data['email']) || empty($data['password'])) {
-    JwtAuth::jsonError("Email and password are required");
+if (empty($username) || empty($password)) {
+    http_response_code(400);
+    echo json_encode(['status' => false, 'message' => 'All fields are required.']);
+    exit;
 }
-
-$email = trim($data['email']);
-$password = $data['password'];
-$device_id = $data['device_id'] ?? null;
-$fcm_token = $data['fcm_token'] ?? null;
-$platform = $data['platform'] ?? 'android';
 
 try {
-    $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ? AND status = 'ACTIVE'");
-    $stmt->execute([$email]);
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    $db = getDBConnection();
+    // Using Prepared Statements against SQL Injection
+    $stmt = $db->prepare("SELECT id, username, password, role FROM users WHERE username = :username LIMIT 1");
+    $stmt->execute([':username' => $username]);
+    $user = $stmt->fetch();
 
+    // Secure password validation using native hashes
     if ($user && password_verify($password, $user['password'])) {
-        $role_name = 'guest';
-        $role_specific_id = null;
-
-        if ($user['role_id'] == 1 || $user['role_id'] == 2) {
-            $role_name = 'admin';
-            $stmt_adm = $pdo->prepare("SELECT id, name FROM admins WHERE email = ?");
-            $stmt_adm->execute([$user['email']]);
-            $specific = $stmt_adm->fetch(PDO::FETCH_ASSOC);
-            $role_specific_id = $specific['id'] ?? null;
-            $name = $specific['name'] ?? 'Admin';
-        } else if ($user['role_id'] == 4) {
-            $role_name = 'teacher';
-            $stmt_tch = $pdo->prepare("SELECT id, name FROM teachers WHERE email = ?");
-            $stmt_tch->execute([$user['email']]);
-            $specific = $stmt_tch->fetch(PDO::FETCH_ASSOC);
-            $role_specific_id = $specific['id'] ?? null;
-            $name = $specific['name'] ?? 'Teacher';
-        } else if ($user['role_id'] == 7) {
-            $role_name = 'parent';
-            $stmt_prn = $pdo->prepare("SELECT id, father_name as name FROM parents WHERE email = ?");
-            $stmt_prn->execute([$user['email']]);
-            $specific = $stmt_prn->fetch(PDO::FETCH_ASSOC);
-            $role_specific_id = $specific['id'] ?? null;
-            $name = $specific['name'] ?? 'Parent';
-        } else if ($user['role_id'] == 8) {
-            $role_name = 'student';
-            $stmt_std = $pdo->prepare("SELECT id, first_name as name FROM students WHERE email = ?");
-            $stmt_std->execute([$user['email']]);
-            $specific = $stmt_std->fetch(PDO::FETCH_ASSOC);
-            $role_specific_id = $specific['id'] ?? null;
-            $name = $specific['name'] ?? 'Student';
-        }
-
-        if (!$role_specific_id) {
-            JwtAuth::jsonError("Profile configuration incomplete", 403);
-        }
-
-        // Generate JWT Payload
-        $payload = [
-            'user_id' => $user['id'],
-            'role_specific_id' => $role_specific_id,
-            'role' => $role_name,
-            'email' => $user['email'],
-            'name' => $name
-        ];
-
-        // Token expires in 30 days for mobile apps
-        $token = JwtAuth::generateToken($payload, 86400 * 30);
-
-        // Store Token in user_tokens
-        $expiry_date = date('Y-m-d H:i:s', time() + (86400 * 30));
-        $pdo->prepare("INSERT INTO user_tokens (user_id, user_type, token, expires_at) VALUES (?, ?, ?, ?)")
-            ->execute([$user['id'], $role_name, $token, $expiry_date]);
-
-        // Register FCM Device Token if provided
-        if ($fcm_token && $device_id) {
-            $stmt_dev = $pdo->prepare("
-                INSERT INTO device_tokens (user_id, user_type, device_id, fcm_token, platform) 
-                VALUES (?, ?, ?, ?, ?)
-                ON DUPLICATE KEY UPDATE fcm_token = ?, platform = ?, last_active = CURRENT_TIMESTAMP
-            ");
-            $stmt_dev->execute([$user['id'], $role_name, $device_id, $fcm_token, $platform, $fcm_token, $platform]);
-        }
-
+        // Generate dynamic token via your middleware
+        $token = AuthClass::generateJWT($user['id'], $user['role']);
+        
         echo json_encode([
-            'status' => 'success',
+            'status' => true,
             'message' => 'Login successful',
             'token' => $token,
-            'user' => $payload
+            'user' => [
+                'id' => $user['id'],
+                'username' => $user['username'],
+                'role' => $user['role']
+            ]
         ]);
     } else {
-        JwtAuth::jsonError("Invalid credentials", 401);
+        http_response_code(401);
+        echo json_encode(['status' => false, 'message' => 'Invalid username or password.']);
     }
 } catch (PDOException $e) {
-    JwtAuth::jsonError("Server error: " . $e->getMessage(), 500);
+    http_response_code(500);
+    echo json_encode(['status' => false, 'message' => 'Server Error: ' . $e->getMessage()]);
 }
 ?>

@@ -1,4 +1,4 @@
-﻿<USER_REQUEST>
+<USER_REQUEST>
 Module 1: Live Class System
 Database
 CREATE TABLE online_classes (
@@ -9,7 +9,7 @@ CREATE TABLE online_classes (
     subject_id BIGINT NOT NULL,
     title VARCHAR(255) NOT NULL,
     description TEXT NULL,
-    meeting_provider ENUM('google_meet','zoom','jitsi') NOT NULL,
+    meeting_provider ENUM('google_meet','zoom') NOT NULL,
     meeting_link TEXT NOT NULL,
     start_time DATETIME NOT NULL,
     end_time DATETIME NOT NULL,

@@ -1,5 +1,6 @@
 <?php
 require_once(__DIR__ . '/../config/database.php');
+$pdo = getDBConnection();
 
 $current_page_uri = $_SERVER['REQUEST_URI'] ?? '/';
 $current_page_path = parse_url($current_page_uri, PHP_URL_PATH);

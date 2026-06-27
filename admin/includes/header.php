@@ -3,7 +3,8 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 require_once(__DIR__ . '/../../includes/auth.php');
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+$admin_roles = ['admin', 'superadmin', 'School Admin', 'Super Admin', 'super_admin'];
+if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $admin_roles)) {
     http_response_code(403);
     die("Access Denied: Admin authorization required. (Current Role: " . ($_SESSION['role'] ?? 'None') . ")");
 }
@@ -136,6 +137,37 @@ if (!isset($root_path)) {
     <a href="<?= $root_path ?>admin/helpdesk/tickets.php" class="<?= (isset($active_menu) && $active_menu == 'helpdesk') ? 'active' : '' ?>">
         <i class="fa fa-ticket-alt"></i> <span>Helpdesk</span>
     </a>
+    
+    <!-- New Security & Delegation Features -->
+    <a href="<?= $root_path ?>admin/master-control.php" class="<?= (isset($active_menu) && $active_menu == 'master-control') ? 'active' : '' ?>">
+        <i class="fa fa-mask"></i> <span>Impersonation</span>
+    </a>
+    <a href="<?= $root_path ?>admin/security/account-handover.php" class="<?= (isset($active_menu) && $active_menu == 'handover') ? 'active' : '' ?>">
+        <i class="fa fa-people-arrows"></i> <span>Staff Handover</span>
+    </a>
+    <a href="<?= $root_path ?>admin/security/terminate-delegation.php" class="<?= (isset($active_menu) && $active_menu == 'terminate') ? 'active' : '' ?>">
+        <i class="fa fa-user-slash"></i> <span>Kill Active Sessions</span>
+    </a>
+    <a href="<?= $root_path ?>modules/auth/claim-access.php">
+        <i class="fa fa-key"></i> <span>Claim OTP Access</span>
+    </a>
+    <a href="<?= $root_path ?>admin/content/noticeboard.php" class="<?= (isset($active_menu) && $active_menu == 'public-noticeboard') ? 'active' : '' ?>">
+        <i class="fa fa-clipboard-list"></i> <span>Public Noticeboard</span>
+    </a>
+    <a href="<?= $root_path ?>admin/users/add-user.php" class="<?= (isset($active_menu) && $active_menu == 'add-user') ? 'active' : '' ?>">
+        <i class="fa fa-user-plus"></i> <span>Onboard User</span>
+    </a>
+    <a href="<?= $root_path ?>admin/security/email-logs.php" class="<?= (isset($active_menu) && $active_menu == 'email-logs') ? 'active' : '' ?>">
+        <i class="fa fa-envelope-open-text"></i> <span>Email Ledger</span>
+    </a>
+    <a href="<?= $root_path ?>admin/academic/whatsapp-manager.php" class="<?= (isset($active_menu) && $active_menu == 'whatsapp-manager') ? 'active' : '' ?>">
+        <i class="fab fa-whatsapp"></i> <span>WhatsApp Manager</span>
+    </a>
+    <a href="<?= $root_path ?>admin/academic/whatsapp-integrity.php" class="<?= (isset($active_menu) && $active_menu == 'whatsapp-integrity') ? 'active' : '' ?>">
+        <i class="fa fa-shield-virus"></i> <span>WhatsApp Integrity</span>
+    </a>
+    <!-- /New Features -->
+
     <a href="<?= $root_path ?>logout.php">
         <i class="fa fa-sign-out-alt"></i> <span>Logout</span>
     </a>

@@ -151,7 +151,7 @@ require_once('../includes/topbar.php');
                             <select name="platform" class="form-select" required>
                                 <option value="google_meet">Google Meet</option>
                                 <option value="zoom">Zoom</option>
-                                <option value="jitsi">Jitsi</option>
+
                                 <option value="custom">Custom</option>
                             </select>
                         </div>

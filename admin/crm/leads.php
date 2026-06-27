@@ -2,6 +2,7 @@
 $root_path = "../../";
 require_once($root_path . 'config/database.php');
 require_once($root_path . 'includes/auth.php');
+require_once($root_path . 'helpers/security.php');
 
 // Ensure role permission checks
 if (!isset($_SESSION['role_id']) || $_SESSION['role_id'] != 1) {

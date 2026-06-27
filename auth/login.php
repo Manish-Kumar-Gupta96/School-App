@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once('../config/database.php');
+$pdo = getDBConnection();
 require_once('../includes/AuthClass.php');
 
 // CSRF token generation

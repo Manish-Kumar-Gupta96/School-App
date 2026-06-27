@@ -1,40 +1,32 @@
 <?php
-
-declare(strict_types=1);
-
-/**
- * -------------------------------------------------------------
- * VIC School ERP Enterprise v2.0
- * Browser Detector
- * -------------------------------------------------------------
- */
-
-class BrowserDetector
-{
-    private string $userAgent;
-
-    public function __construct(?string $userAgent = null)
-    {
-        $this->userAgent = $userAgent ?? $_SERVER['HTTP_USER_AGENT'] ?? '';
-    }
-
-    public function getBrowser(): string
-    {
-        $browsers = [
-            'Edge' => '/Edg/i',
-            'Chrome' => '/Chrome/i',
-            'Firefox' => '/Firefox/i',
-            'Safari' => '/Safari/i',
-            'Opera' => '/Opera|OPR/i',
-            'Internet Explorer' => '/MSIE|Trident/i'
-        ];
-
-        foreach ($browsers as $name => $regex) {
-            if (preg_match($regex, $this->userAgent)) {
-                return $name;
-            }
+class BrowserDetector {
+    /**
+     * Parsing user agent patterns cleanly without heavyweight dependencies
+     */
+    public static function detect($userAgent) {
+        $browser = "Unknown Browser";
+        
+        if (empty($userAgent)) {
+            return $browser;
         }
 
-        return 'Unknown';
+        $userAgent = strtoupper($userAgent);
+
+        if (strpos($userAgent, 'OPR/') !== false || strpos($userAgent, 'OPERA') !== false) {
+            $browser = 'Opera';
+        } elseif (strpos($userAgent, 'EDGE') !== false || strpos($userAgent, 'EDG/') !== false) {
+            $browser = 'Microsoft Edge';
+        } elseif (strpos($userAgent, 'CHROME') !== false) {
+            $browser = 'Google Chrome';
+        } elseif (strpos($userAgent, 'SAFARI') !== false) {
+            $browser = 'Safari';
+        } elseif (strpos($userAgent, 'FIREFOX') !== false) {
+            $browser = 'Mozilla Firefox';
+        } elseif (strpos($userAgent, 'MSIE') !== false || strpos($userAgent, 'TRIDENT/') !== false) {
+            $browser = 'Internet Explorer';
+        }
+
+        return $browser;
     }
 }
+?>

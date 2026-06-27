@@ -1,0 +1,4 @@
+[2026-06-26 19:19:16] DB_FAIL - Action: UNAUTHORIZED_ACCESS_ATTEMPT | Description: User tried to access restricted module without scope | Error: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'role' in 'field list'
+[2026-06-27 09:40:13] DB_FAIL - Action: IMPERSONATION_TRIGGERED | Description: Admin switched interface into User ID #2 [School Administrator] dashboard view. | Error: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'role' in 'field list'
+[2026-06-27 11:16:26] DB_FAIL - Action: IMPERSONATION_TRIGGERED | Description: Admin switched interface into User ID #2 [School Administrator] dashboard view. | Error: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'role' in 'field list'
+[2026-06-27 11:16:41] DB_FAIL - Action: IMPERSONATION_TRIGGERED | Description: Admin switched interface into User ID #6 [Aarav Sharma] dashboard view. | Error: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'role' in 'field list'
