@@ -11,38 +11,76 @@
 </head>
 <body>
 
-    <!-- Header Navigation -->
-    <nav class="navbar navbar-expand-lg main-navbar sticky-top">
-        <div class="container">
-            <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
-                <div style="width: 44px; height: 44px; background: linear-gradient(135deg, #0d47a1, #1976d2); color: #fff; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
-                    <i class="fa-solid fa-graduation-cap"></i>
+    <!-- Top Info Bar -->
+    <header class="w-100">
+        <div class="top-infobar d-none d-lg-block">
+            <div class="container d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-4">
+                    <span><i class="fa-solid fa-phone text-warning me-2"></i><strong>Helpline:</strong> <a href="tel:+919876543210">+91 98765 43210</a></span>
+                    <span><i class="fa-solid fa-envelope text-warning me-2"></i><a href="mailto:admissions@vicschool.edu.in">admissions@vicschool.edu.in</a></span>
+                    <span><i class="fa-solid fa-location-dot text-warning me-2"></i>Knowledge Park III, Institutional Area</span>
                 </div>
-                <div>
-                    <span class="fw-bold fs-4 d-block brand-font" style="color: #0d47a1; line-height: 1.1;">VIC PUBLIC SCHOOL</span>
-                    <small class="text-muted fw-semibold" style="font-size: 0.75rem; letter-spacing: 1px;">AFFILIATED TO CBSE | CODE #213089</small>
-                </div>
-            </a>
-            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
-                <i class="fa-solid fa-bars fs-3 text-primary"></i>
-            </button>
-            <div class="collapse navbar-collapse" id="mainNav">
-                <ul class="navbar-nav mx-auto mb-2 mb-lg-0 fw-semibold">
-                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="about.html">About Us</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="academics.html">Academics</a></li>
-                    <li class="nav-item"><a class="nav-link" href="facilities.html">Campus &amp; Facilities</a></li>
-                    <li class="nav-item"><a class="nav-link" href="gallery.html">Gallery</a></li>
-                    <li class="nav-item"><a class="nav-link" href="admissions.html">Admissions</a></li>
-                    <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
-                </ul>
-                <div class="d-flex align-items-center gap-2">
-                    <a href="login.html" class="btn btn-outline-primary btn-sm px-3 rounded-pill fw-bold">Portal</a>
-                    <a href="dashboard.html" class="btn btn-primary-custom btn-sm px-4 rounded-pill">Live ERP Demo</a>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="badge bg-danger rounded-pill px-3 py-1 shadow-sm"><i class="fa-solid fa-star me-1"></i> Admissions 2026-27 Open</span>
+                    <a href="login.html" class="fw-bold"><i class="fa-solid fa-lock me-1 text-warning"></i> Portal Login</a>
                 </div>
             </div>
         </div>
-    </nav>
+
+        <!-- Live Notice Ticker -->
+        <div class="notice-ticker">
+            <div class="container d-flex align-items-center">
+                <div class="notice-badge me-3 flex-shrink-0">
+                    <i class="fa-solid fa-bullhorn"></i> NOTICES
+                </div>
+                <marquee behavior="scroll" direction="left" onmouseover="this.stop();" onmouseout="this.start();" class="text-white-50 small">
+                    🎉 Congratulations to our Class 12th CBSE batch for achieving 100% First Class results! &nbsp; &bull; &nbsp; 
+                    🏆 VIC School wins State Inter-School Robotics & AI Championship 2026. &nbsp; &bull; &nbsp; 
+                    📅 Entrance Exam & Interview dates for Session 2026-27 announced. <a href="admissions.html" class="text-warning text-decoration-underline fw-bold">Register Online</a>
+                </marquee>
+            </div>
+        </div>
+
+        <!-- Main Navigation Bar -->
+        <nav class="navbar navbar-expand-lg main-navbar sticky-top">
+            <div class="container">
+                <a class="navbar-brand d-flex align-items-center gap-3" href="index.html">
+                    <div class="school-crest">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <div>
+                        <div class="brand-title">VIC PUBLIC SCHOOL</div>
+                        <div class="brand-subtitle"><i class="fa-solid fa-award text-warning me-1"></i>Affiliated to CBSE • Estd. 2001</div>
+                    </div>
+                </a>
+                
+                <button class="navbar-toggler border-0 p-2 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-label="Toggle navigation">
+                    <i class="fa-solid fa-bars-staggered fs-3 text-primary"></i>
+                </button>
+
+                <div class="collapse navbar-collapse" id="mainNavbar">
+                    <ul class="navbar-nav mx-auto mb-2 mb-lg-0 py-2 py-lg-0">
+                        <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="about.html">About Us</a></li>
+                        <li class="nav-item"><a class="nav-link active" href="academics.html">Academics</a></li>
+                        <li class="nav-item"><a class="nav-link" href="facilities.html">Facilities</a></li>
+                        <li class="nav-item"><a class="nav-link" href="gallery.html">Gallery</a></li>
+                        <li class="nav-item"><a class="nav-link" href="admissions.html">Admissions</a></li>
+                        <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+                    </ul>
+
+                    <div class="d-flex align-items-center gap-2 pt-2 pt-lg-0">
+                        <a href="login.html" class="btn btn-nav-portal">
+                            <i class="fa-solid fa-circle-user me-1"></i> Portal
+                        </a>
+                        <a href="dashboard.html" class="btn btn-nav-apply">
+                            <i class="fa-solid fa-chart-pie me-1"></i> ERP Demo
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
 
     <!-- Page Header -->
     <div style="background: linear-gradient(135deg, #072d6b, #0d47a1); color: #fff; padding: 60px 0;">

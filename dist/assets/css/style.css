@@ -6,7 +6,7 @@
   --primary-dark: #072d6b;
   --secondary-color: #ff9800;
   --accent-color: #00c853;
-  --dark-bg: #0b1528;
+  --dark-bg: #071326;
   --light-bg: #f8fafc;
   --text-main: #1e293b;
   --text-muted: #64748b;
@@ -33,28 +33,172 @@ h1, h2, h3, h4, h5, h6, .brand-font {
   font-family: 'Outfit', sans-serif;
 }
 
-/* Custom Navbar */
+/* --------------------------------------
+   PREMIUM HEADER & NAVBAR STYLING
+----------------------------------------- */
+.top-infobar {
+  background: #071326;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.top-infobar a {
+  color: #cbd5e1;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.top-infobar a:hover {
+  color: #ff9800;
+}
+
+/* Notice Ticker */
+.notice-ticker {
+  background: linear-gradient(90deg, #091a32 0%, #0d2850 50%, #091a32 100%);
+  color: #fff;
+  padding: 8px 0;
+  font-size: 0.88rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.notice-badge {
+  background: linear-gradient(135deg, #ff9800, #f57c00);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.75rem;
+  padding: 4px 12px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 8px rgba(245, 124, 0, 0.4);
+}
+
+/* Main Navigation Bar */
 .main-navbar {
-  background: rgba(255, 255, 255, 0.96);
-  backdrop-filter: blur(12px);
-  transition: all 0.3s ease;
-  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+  padding: 12px 0;
+}
+
+.main-navbar.scrolled {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  padding: 8px 0;
+}
+
+.school-crest {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #0d47a1 0%, #1976d2 100%);
+  color: #fff;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  box-shadow: 0 4px 14px rgba(13, 71, 161, 0.35);
+  transition: transform 0.3s ease;
+}
+
+.navbar-brand:hover .school-crest {
+  transform: rotate(-5deg) scale(1.05);
+}
+
+.brand-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #072d6b;
+  letter-spacing: -0.5px;
+  line-height: 1.1;
+}
+
+.brand-subtitle {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
 }
 
 .nav-link {
   color: #334155 !important;
   font-weight: 600;
-  padding: 0.5rem 1rem !important;
-  transition: all 0.2s ease;
+  font-size: 0.95rem;
+  padding: 8px 16px !important;
+  transition: all 0.25s ease;
   border-radius: 8px;
+  position: relative;
 }
 
-.nav-link:hover, .nav-link.active {
-  color: var(--primary-color) !important;
+.nav-link:hover {
+  color: #0d47a1 !important;
   background-color: rgba(13, 71, 161, 0.06);
 }
 
-/* Hero Section */
+.nav-link.active {
+  color: #0d47a1 !important;
+  background-color: rgba(13, 71, 161, 0.08);
+  font-weight: 700;
+}
+
+.nav-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 20%;
+  right: 20%;
+  height: 3px;
+  background: #ff9800;
+  border-radius: 3px;
+}
+
+/* Buttons */
+.btn-nav-portal {
+  border: 1.5px solid #0d47a1;
+  color: #0d47a1;
+  font-weight: 700;
+  font-size: 0.88rem;
+  padding: 8px 18px;
+  border-radius: 999px;
+  transition: all 0.25s ease;
+  background: transparent;
+}
+
+.btn-nav-portal:hover {
+  background: #0d47a1;
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(13, 71, 161, 0.25);
+  transform: translateY(-1px);
+}
+
+.btn-nav-apply {
+  background: linear-gradient(135deg, #ff9800, #f57c00);
+  color: #fff !important;
+  font-weight: 700;
+  font-size: 0.88rem;
+  padding: 8px 20px;
+  border-radius: 999px;
+  border: none;
+  box-shadow: 0 4px 14px rgba(245, 124, 0, 0.35);
+  transition: all 0.25s ease;
+}
+
+.btn-nav-apply:hover {
+  background: linear-gradient(135deg, #f57c00, #e65100);
+  box-shadow: 0 6px 18px rgba(245, 124, 0, 0.45);
+  transform: translateY(-1px);
+}
+
+/* --------------------------------------
+   PAGE HERO & CARDS
+----------------------------------------- */
 .hero-wrapper {
   background: linear-gradient(135deg, #072d6b 0%, #0d47a1 50%, #1565c0 100%);
   position: relative;
@@ -69,16 +213,15 @@ h1, h2, h3, h4, h5, h6, .brand-font {
   left: 0;
   right: 0;
   bottom: 0;
-  background: radial-gradient(circle at 80% 20%, rgba(255, 152, 0, 0.2) 0%, transparent 40%),
-              radial-gradient(circle at 20% 80%, rgba(0, 200, 83, 0.15) 0%, transparent 40%);
+  background: radial-gradient(circle at 80% 20%, rgba(255, 152, 0, 0.25) 0%, transparent 40%),
+              radial-gradient(circle at 20% 80%, rgba(0, 200, 83, 0.18) 0%, transparent 40%);
   pointer-events: none;
 }
 
-/* Glassmorphic Cards */
 .glass-card {
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(226, 232, 240, 0.8);
   border-radius: 16px;
   box-shadow: var(--card-shadow);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -90,14 +233,13 @@ h1, h2, h3, h4, h5, h6, .brand-font {
 }
 
 .glass-card-dark {
-  background: rgba(15, 23, 42, 0.85);
+  background: rgba(15, 23, 42, 0.88);
   backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 16px;
   color: #fff;
 }
 
-/* Badge & Buttons */
 .badge-pill {
   padding: 6px 14px;
   border-radius: 999px;
@@ -112,8 +254,8 @@ h1, h2, h3, h4, h5, h6, .brand-font {
   color: #fff;
   border: none;
   font-weight: 700;
-  padding: 10px 24px;
-  border-radius: 10px;
+  padding: 12px 28px;
+  border-radius: 12px;
   transition: all 0.3s ease;
   box-shadow: 0 4px 14px rgba(13, 71, 161, 0.3);
 }
@@ -130,20 +272,19 @@ h1, h2, h3, h4, h5, h6, .brand-font {
   color: #fff;
   border: none;
   font-weight: 700;
-  padding: 10px 24px;
-  border-radius: 10px;
+  padding: 12px 28px;
+  border-radius: 12px;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 14px rgba(245, 124, 0, 0.3);
+  box-shadow: 0 4px 14px rgba(245, 124, 0, 0.35);
 }
 
 .btn-accent:hover {
   background: linear-gradient(135deg, #f57c00, #e65100);
   color: #fff;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(245, 124, 0, 0.4);
+  box-shadow: 0 6px 20px rgba(245, 124, 0, 0.45);
 }
 
-/* Feature Icon Boxes */
 .feature-icon-box {
   width: 60px;
   height: 60px;
@@ -155,16 +296,7 @@ h1, h2, h3, h4, h5, h6, .brand-font {
   margin-bottom: 20px;
 }
 
-/* Marquee / Live Ticker */
-.notice-ticker {
-  background: #0f172a;
-  color: #fff;
-  padding: 10px 0;
-  font-size: 0.9rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* Footer styling */
+/* Main Footer */
 .main-footer {
   background: #071326;
   color: #94a3b8;
