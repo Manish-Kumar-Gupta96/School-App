@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integrated Portal Login | VIC Public School &amp; ERP</title>
+    <meta name="description" content="Secure login portal for Students, Parents, Teachers, and Administrators at VIC Public School.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body style="background: linear-gradient(135deg, #071326 0%, #0d47a1 100%); min-height: 100vh; display: flex; flex-direction: column;">
+
+    <!-- Minimal Header -->
+    <div class="py-3 text-center">
+        <a href="index.html" class="d-inline-flex align-items-center gap-2 text-white text-decoration-none">
+            <div style="width: 36px; height: 36px; background: #ff9800; color: #fff; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <span class="fw-bold fs-4 brand-font">VIC PUBLIC SCHOOL ERP</span>
+        </a>
+    </div>
+
+    <!-- Login Container -->
+    <div class="container my-auto py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-5">
+                <div class="card glass-card border-0 p-4 p-md-5 shadow-lg">
+                    <div class="text-center mb-4">
+                        <span class="badge bg-primary px-3 py-1 rounded-pill fw-bold mb-2">Cloud ERP Gateway</span>
+                        <h3 class="fw-bold text-dark">Portal Sign In</h3>
+                        <p class="text-muted small">Select your role or enter your institutional credentials.</p>
+                    </div>
+
+                    <!-- Role Selector Pill -->
+                    <div class="btn-group w-100 mb-4" role="group">
+                        <button type="button" class="btn btn-outline-primary btn-sm active fw-bold role-btn" onclick="selectRole('Student', 'student@vic.edu', 'VIC-STU-1029')">Student</button>
+                        <button type="button" class="btn btn-outline-primary btn-sm fw-bold role-btn" onclick="selectRole('Teacher', 'teacher@vic.edu', 'VIC-FAC-405')">Teacher</button>
+                        <button type="button" class="btn btn-outline-primary btn-sm fw-bold role-btn" onclick="selectRole('Parent', 'parent@vic.edu', 'VIC-PAR-882')">Parent</button>
+                        <button type="button" class="btn btn-outline-primary btn-sm fw-bold role-btn" onclick="selectRole('Admin', 'admin@vic.edu', 'VIC-ADM-001')">Admin</button>
+                    </div>
+
+                    <form onsubmit="handleLogin(event)">
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Role Selected</label>
+                            <input type="text" id="userRoleField" class="form-control bg-light fw-bold text-primary" value="Student" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Institutional ID / Email</label>
+                            <input type="text" id="usernameField" class="form-control" value="student@vic.edu" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Password / PIN</label>
+                            <input type="password" id="passwordField" class="form-control" value="••••••••" required>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-4 small">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="rememberMe" checked>
+                                <label class="form-check-label text-muted" for="rememberMe">Remember me</label>
+                            </div>
+                            <a href="#" onclick="alert('Password reset link sent to your registered institutional phone/email.');" class="text-primary text-decoration-none fw-semibold">Forgot PIN?</a>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary-custom w-100 py-3 rounded-pill fw-bold">
+                            <i class="fa-solid fa-arrow-right-to-bracket me-2"></i> Launch ERP Dashboard
+                        </button>
+                    </form>
+
+                    <!-- Quick Demo Instant Login -->
+                    <div class="mt-4 pt-3 border-top text-center">
+                        <small class="text-muted d-block mb-2">Or quick test right now:</small>
+                        <a href="dashboard.html" class="btn btn-accent btn-sm w-100 rounded-pill fw-bold py-2">
+                            <i class="fa-solid fa-bolt me-1"></i> Instant 1-Click Guest ERP Demo
+                        </a>
+                    </div>
+                </div>
+
+                <div class="text-center mt-3 text-white-50 small">
+                    <a href="index.html" class="text-white-50 text-decoration-none"><i class="fa-solid fa-arrow-left me-1"></i> Back to Public Homepage</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function selectRole(role, email, id) {
+            document.querySelectorAll('.role-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('userRoleField').value = role + ' (' + id + ')';
+            document.getElementById('usernameField').value = email;
+            document.getElementById('passwordField').value = 'password123';
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const role = document.getElementById('userRoleField').value.split(' ')[0];
+            localStorage.setItem('vic_user_role', role);
+            window.location.href = 'dashboard.html?role=' + encodeURIComponent(role);
+        }
+    </script>
+</body>
+</html>

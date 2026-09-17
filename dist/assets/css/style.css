@@ -1,0 +1,186 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap');
+
+:root {
+  --primary-color: #0d47a1;
+  --primary-light: #1976d2;
+  --primary-dark: #072d6b;
+  --secondary-color: #ff9800;
+  --accent-color: #00c853;
+  --dark-bg: #0b1528;
+  --light-bg: #f8fafc;
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  --border-color: #e2e8f0;
+  --card-shadow: 0 10px 30px rgba(13, 71, 161, 0.08);
+  --hover-shadow: 0 20px 40px rgba(13, 71, 161, 0.15);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: var(--text-main);
+  background-color: #fff;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6, .brand-font {
+  font-family: 'Outfit', sans-serif;
+}
+
+/* Custom Navbar */
+.main-navbar {
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+  transition: all 0.3s ease;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.nav-link {
+  color: #334155 !important;
+  font-weight: 600;
+  padding: 0.5rem 1rem !important;
+  transition: all 0.2s ease;
+  border-radius: 8px;
+}
+
+.nav-link:hover, .nav-link.active {
+  color: var(--primary-color) !important;
+  background-color: rgba(13, 71, 161, 0.06);
+}
+
+/* Hero Section */
+.hero-wrapper {
+  background: linear-gradient(135deg, #072d6b 0%, #0d47a1 50%, #1565c0 100%);
+  position: relative;
+  overflow: hidden;
+  color: #fff;
+}
+
+.hero-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 80% 20%, rgba(255, 152, 0, 0.2) 0%, transparent 40%),
+              radial-gradient(circle at 20% 80%, rgba(0, 200, 83, 0.15) 0%, transparent 40%);
+  pointer-events: none;
+}
+
+/* Glassmorphic Cards */
+.glass-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+  box-shadow: var(--card-shadow);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--hover-shadow);
+}
+
+.glass-card-dark {
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  color: #fff;
+}
+
+/* Badge & Buttons */
+.badge-pill {
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-primary-custom {
+  background: linear-gradient(135deg, #0d47a1, #1976d2);
+  color: #fff;
+  border: none;
+  font-weight: 700;
+  padding: 10px 24px;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 14px rgba(13, 71, 161, 0.3);
+}
+
+.btn-primary-custom:hover {
+  background: linear-gradient(135deg, #072d6b, #0d47a1);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(13, 71, 161, 0.4);
+}
+
+.btn-accent {
+  background: linear-gradient(135deg, #ff9800, #f57c00);
+  color: #fff;
+  border: none;
+  font-weight: 700;
+  padding: 10px 24px;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 14px rgba(245, 124, 0, 0.3);
+}
+
+.btn-accent:hover {
+  background: linear-gradient(135deg, #f57c00, #e65100);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(245, 124, 0, 0.4);
+}
+
+/* Feature Icon Boxes */
+.feature-icon-box {
+  width: 60px;
+  height: 60px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  margin-bottom: 20px;
+}
+
+/* Marquee / Live Ticker */
+.notice-ticker {
+  background: #0f172a;
+  color: #fff;
+  padding: 10px 0;
+  font-size: 0.9rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Footer styling */
+.main-footer {
+  background: #071326;
+  color: #94a3b8;
+  padding: 70px 0 30px;
+  position: relative;
+}
+
+.footer-link {
+  color: #94a3b8;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  display: inline-block;
+  margin-bottom: 8px;
+}
+
+.footer-link:hover {
+  color: #ff9800;
+  transform: translateX(4px);
+}

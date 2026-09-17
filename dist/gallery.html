@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo &amp; Event Gallery | VIC Public School</title>
+    <meta name="description" content="View vibrant moments, sports events, science fairs, and campus life at VIC Public School.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+    <!-- Main Navigation Bar -->
+    <nav class="navbar navbar-expand-lg main-navbar sticky-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
+                <div style="width: 44px; height: 44px; background: linear-gradient(135deg, #0d47a1, #1976d2); color: #fff; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <div>
+                    <span class="fw-bold fs-4 d-block brand-font" style="color: #0d47a1; line-height: 1.1;">VIC PUBLIC SCHOOL</span>
+                    <small class="text-muted fw-semibold" style="font-size: 0.75rem; letter-spacing: 1px;">AFFILIATED TO CBSE | CODE #213089</small>
+                </div>
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+                <i class="fa-solid fa-bars fs-3 text-primary"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0 fw-semibold">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="about.html">About Us</a></li>
+                    <li class="nav-item"><a class="nav-link" href="academics.html">Academics</a></li>
+                    <li class="nav-item"><a class="nav-link" href="facilities.html">Campus &amp; Facilities</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="gallery.html">Gallery</a></li>
+                    <li class="nav-item"><a class="nav-link" href="admissions.html">Admissions</a></li>
+                    <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+                </ul>
+                <div class="d-flex align-items-center gap-2">
+                    <a href="login.html" class="btn btn-outline-primary btn-sm px-3 rounded-pill fw-bold">Portal</a>
+                    <a href="dashboard.html" class="btn btn-primary-custom btn-sm px-4 rounded-pill">Live ERP Demo</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <div style="background: linear-gradient(135deg, #072d6b, #0d47a1); color: #fff; padding: 60px 0;">
+        <div class="container text-center">
+            <span class="badge bg-warning text-dark px-3 py-1 rounded-pill fw-bold mb-2">Moments &amp; Celebrations</span>
+            <h1 class="display-5 fw-bold mb-2">Campus Photo Gallery</h1>
+            <p class="lead text-white-50 mb-0">Capturing the Energy, Creativity, and Spirit of VIC Life</p>
+        </div>
+    </div>
+
+    <!-- Filter Buttons -->
+    <section class="py-5">
+        <div class="container">
+            <div class="d-flex justify-content-center flex-wrap gap-2 mb-5">
+                <button class="btn btn-primary-custom btn-sm px-4 rounded-pill filter-btn active" onclick="filterGallery('all')">All Moments</button>
+                <button class="btn btn-outline-secondary btn-sm px-4 rounded-pill filter-btn" onclick="filterGallery('sports')">Sports &amp; Athletics</button>
+                <button class="btn btn-outline-secondary btn-sm px-4 rounded-pill filter-btn" onclick="filterGallery('events')">Annual Day &amp; Fest</button>
+                <button class="btn btn-outline-secondary btn-sm px-4 rounded-pill filter-btn" onclick="filterGallery('science')">Science &amp; Robotics</button>
+                <button class="btn btn-outline-secondary btn-sm px-4 rounded-pill filter-btn" onclick="filterGallery('campus')">Campus Life</button>
+            </div>
+
+            <!-- Gallery Grid -->
+            <div class="row g-4" id="galleryGrid">
+                <div class="col-md-6 col-lg-4 gallery-item events">
+                    <div class="card glass-card border-0 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=800&auto=format&fit=crop" class="card-img-top" style="height: 250px; object-fit: cover;" alt="Annual Cultural Fest">
+                        <div class="p-3">
+                            <span class="badge bg-primary mb-1">Annual Fest</span>
+                            <h6 class="fw-bold mb-0">Musical Orchestra &amp; Drama Night 2026</h6>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-4 gallery-item science">
+                    <div class="card glass-card border-0 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1532094349884-543bc11b234d?q=80&w=800&auto=format&fit=crop" class="card-img-top" style="height: 250px; object-fit: cover;" alt="Robotics Exhibition">
+                        <div class="p-3">
+                            <span class="badge bg-success mb-1">Science &amp; Robotics</span>
+                            <h6 class="fw-bold mb-0">Inter-School AI Innovation Expo</h6>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-4 gallery-item sports">
+                    <div class="card glass-card border-0 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=800&auto=format&fit=crop" class="card-img-top" style="height: 250px; object-fit: cover;" alt="Athletics Meet">
+                        <div class="p-3">
+                            <span class="badge bg-danger mb-1">Sports</span>
+                            <h6 class="fw-bold mb-0">Annual Inter-House Football Championship</h6>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-4 gallery-item campus">
+                    <div class="card glass-card border-0 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=800&auto=format&fit=crop" class="card-img-top" style="height: 250px; object-fit: cover;" alt="Graduation Day">
+                        <div class="p-3">
+                            <span class="badge bg-warning text-dark mb-1">Campus Life</span>
+                            <h6 class="fw-bold mb-0">Class 12th Graduation &amp; Valedictory Ceremony</h6>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-4 gallery-item sports">
+                    <div class="card glass-card border-0 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=800&auto=format&fit=crop" class="card-img-top" style="height: 250px; object-fit: cover;" alt="Basketball Finals">
+                        <div class="p-3">
+                            <span class="badge bg-danger mb-1">Sports</span>
+                            <h6 class="fw-bold mb-0">District Basketball Tournament Winners</h6>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-4 gallery-item science">
+                    <div class="card glass-card border-0 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?q=80&w=800&auto=format&fit=crop" class="card-img-top" style="height: 250px; object-fit: cover;" alt="Chemistry Lab Day">
+                        <div class="p-3">
+                            <span class="badge bg-success mb-1">Science &amp; Robotics</span>
+                            <h6 class="fw-bold mb-0">Young Scientists Practical Discovery Session</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container text-center">
+            <h4 class="text-white fw-bold mb-2">🎓 VIC Public School</h4>
+            <div class="small">© 2026 <strong>VIC School</strong>. Developed by <strong><a href="https://github.com/Manish-Kumar-Gupta96" class="text-warning text-decoration-none">Manish Kumar Gupta</a></strong>.</div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function filterGallery(category) {
+            const items = document.querySelectorAll('.gallery-item');
+            const btns = document.querySelectorAll('.filter-btn');
+            
+            btns.forEach(b => {
+                b.classList.remove('btn-primary-custom', 'active');
+                b.classList.add('btn-outline-secondary');
+            });
+            event.target.classList.remove('btn-outline-secondary');
+            event.target.classList.add('btn-primary-custom', 'active');
+
+            items.forEach(item => {
+                if (category === 'all' || item.classList.contains(category)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

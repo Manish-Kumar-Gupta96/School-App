@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Cloud ERP Portal | VIC Public School</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .erp-sidebar {
+            background: #071326;
+            min-height: 100vh;
+            color: #94a3b8;
+        }
+        .erp-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 18px;
+            border-radius: 10px;
+            color: #94a3b8;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .erp-nav-item:hover, .erp-nav-item.active {
+            background: rgba(13, 71, 161, 0.4);
+            color: #fff;
+            border-left: 4px solid #ff9800;
+        }
+        .stat-card {
+            border-radius: 14px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            transition: transform 0.2s;
+        }
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+    <div class="container-fluid p-0">
+        <div class="row g-0">
+            <!-- ERP Sidebar -->
+            <div class="col-lg-2 d-none d-lg-block erp-sidebar p-3 position-sticky top-0" style="height: 100vh; overflow-y: auto;">
+                <div class="d-flex align-items-center gap-2 mb-4 pb-3 border-bottom border-secondary">
+                    <div style="width: 36px; height: 36px; background: #ff9800; color: #fff; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-white fw-bold mb-0">VIC CLOUD ERP</h6>
+                        <small class="text-secondary" style="font-size: 0.7rem;">v4.2 Enterprise</small>
+                    </div>
+                </div>
+
+                <!-- User Profile Preview in Sidebar -->
+                <div class="p-3 rounded-3 bg-dark bg-opacity-50 mb-4 border border-secondary text-center">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop" id="sidebarAvatar" class="rounded-circle mb-2 border border-2 border-warning" style="width: 60px; height: 60px; object-fit: cover;">
+                    <h6 class="text-white fw-bold mb-0" id="sidebarName">Aarav Sharma</h6>
+                    <span class="badge bg-warning text-dark small fw-bold" id="sidebarRoleBadge">Student (Grade 10-A)</span>
+                </div>
+
+                <!-- ERP Navigation Tabs -->
+                <nav class="d-flex flex-column">
+                    <a class="erp-nav-item active" onclick="switchTab('dashboard')"><i class="fa-solid fa-gauge-high"></i> Overview</a>
+                    <a class="erp-nav-item" onclick="switchTab('attendance')"><i class="fa-solid fa-calendar-check"></i> Attendance</a>
+                    <a class="erp-nav-item" onclick="switchTab('timetable')"><i class="fa-solid fa-clock"></i> Timetable &amp; Classes</a>
+                    <a class="erp-nav-item" onclick="switchTab('academics')"><i class="fa-solid fa-file-lines"></i> Marksheet &amp; Grades</a>
+                    <a class="erp-nav-item" onclick="switchTab('fees')"><i class="fa-solid fa-credit-card"></i> Fees &amp; Payments</a>
+                    <a class="erp-nav-item" onclick="switchTab('assignments')"><i class="fa-solid fa-book"></i> Homework &amp; Tasks</a>
+                    <a class="erp-nav-item" onclick="switchTab('notices')"><i class="fa-solid fa-bullhorn"></i> Circulars &amp; Alerts</a>
+                    <hr class="border-secondary my-3">
+                    <a href="index.html" class="erp-nav-item text-danger"><i class="fa-solid fa-arrow-right-from-bracket"></i> Exit to Website</a>
+                </nav>
+            </div>
+
+            <!-- Main ERP Workspace -->
+            <div class="col-lg-10 p-3 p-md-4">
+                <!-- Top Header Bar -->
+                <div class="d-flex justify-content-between align-items-center mb-4 bg-white p-3 rounded-4 shadow-sm">
+                    <div class="d-flex align-items-center gap-3">
+                        <a href="index.html" class="btn btn-outline-secondary btn-sm rounded-pill d-lg-none"><i class="fa-solid fa-arrow-left"></i> Home</a>
+                        <div>
+                            <h4 class="fw-bold mb-0 text-primary">Academic ERP Console</h4>
+                            <small class="text-muted">Welcome to your personalized portal workspace</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Role Switcher for Interactive Demo -->
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="small fw-bold text-muted d-none d-sm-inline">Switch Role:</span>
+                        <select id="roleDemoSelect" class="form-select form-select-sm fw-bold border-primary" style="width: auto;" onchange="changeRoleDemo(this.value)">
+                            <option value="Student" selected>🎓 Student Mode</option>
+                            <option value="Teacher">👨‍🏫 Teacher Mode</option>
+                            <option value="Parent">👪 Parent Mode</option>
+                            <option value="Admin">⚙️ Super Admin Mode</option>
+                        </select>
+                        <a href="login.html" class="btn btn-outline-danger btn-sm rounded-pill"><i class="fa-solid fa-power-off"></i></a>
+                    </div>
+                </div>
+
+                <!-- TAB 1: OVERVIEW -->
+                <div id="tab-dashboard" class="tab-content-pane">
+                    <!-- Metric Cards -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-3">
+                            <div class="stat-card border-start border-4 border-primary">
+                                <span class="text-muted small fw-semibold">Attendance Rate</span>
+                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                    <h3 class="fw-bold mb-0 text-primary">94.8%</h3>
+                                    <div class="bg-primary bg-opacity-10 text-primary p-2 rounded-3 fs-4"><i class="fa-solid fa-user-check"></i></div>
+                                </div>
+                                <small class="text-success fw-bold"><i class="fa-solid fa-arrow-up me-1"></i> Above 75% threshold</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card border-start border-4 border-success">
+                                <span class="text-muted small fw-semibold">Term Exam CGPA</span>
+                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                    <h3 class="fw-bold mb-0 text-success">9.2 / 10</h3>
+                                    <div class="bg-success bg-opacity-10 text-success p-2 rounded-3 fs-4"><i class="fa-solid fa-award"></i></div>
+                                </div>
+                                <small class="text-muted">Rank #3 in Grade 10-A</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card border-start border-4 border-warning">
+                                <span class="text-muted small fw-semibold">Pending Homework</span>
+                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                    <h3 class="fw-bold mb-0 text-warning">2 Tasks</h3>
+                                    <div class="bg-warning bg-opacity-10 text-warning p-2 rounded-3 fs-4"><i class="fa-solid fa-pen-ruler"></i></div>
+                                </div>
+                                <small class="text-danger fw-bold">Due in 2 days</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card border-start border-4 border-info">
+                                <span class="text-muted small fw-semibold">Quarterly Fee Status</span>
+                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                    <h3 class="fw-bold mb-0 text-info">Paid</h3>
+                                    <div class="bg-info bg-opacity-10 text-info p-2 rounded-3 fs-4"><i class="fa-solid fa-receipt"></i></div>
+                                </div>
+                                <small class="text-muted">Next due on 15 Oct 2026</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Timetable & Notices Grid -->
+                    <div class="row g-4">
+                        <div class="col-lg-8">
+                            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5 class="fw-bold mb-0 text-dark"><i class="fa-solid fa-calendar-day text-primary me-2"></i>Today's Class Schedule (Thursday)</h5>
+                                    <span class="badge bg-primary">5 Periods Active</span>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Time</th>
+                                                <th>Subject</th>
+                                                <th>Faculty</th>
+                                                <th>Room / Lab</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><span class="badge bg-light text-dark border">08:30 - 09:15</span></td>
+                                                <td><strong>Advanced Physics</strong></td>
+                                                <td>Dr. S. K. Verma</td>
+                                                <td>Lab 02</td>
+                                                <td><span class="badge bg-success">Completed</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td><span class="badge bg-light text-dark border">09:15 - 10:00</span></td>
+                                                <td><strong>Mathematics (Calculus)</strong></td>
+                                                <td>Prof. N. Mehra</td>
+                                                <td>Room 204</td>
+                                                <td><span class="badge bg-success">Completed</span></td>
+                                            </tr>
+                                            <tr class="table-primary">
+                                                <td><span class="badge bg-primary">10:15 - 11:00</span></td>
+                                                <td><strong>Computer Science &amp; Python</strong></td>
+                                                <td>Mr. Manish Gupta</td>
+                                                <td>AI / Robotics Lab</td>
+                                                <td><span class="badge bg-danger animate-pulse">Live Now</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td><span class="badge bg-light text-dark border">11:00 - 11:45</span></td>
+                                                <td><strong>Chemistry (Organic)</strong></td>
+                                                <td>Mrs. Kavita Roy</td>
+                                                <td>Chem Lab</td>
+                                                <td><span class="badge bg-secondary">Upcoming</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td><span class="badge bg-light text-dark border">12:30 - 01:15</span></td>
+                                                <td><strong>English Literature</strong></td>
+                                                <td>Ms. Pooja Sen</td>
+                                                <td>Room 204</td>
+                                                <td><span class="badge bg-secondary">Upcoming</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4">
+                            <!-- Circulars / Notices -->
+                            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                                <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-bullhorn text-warning me-2"></i>Official Circulars</h5>
+                                <div class="d-flex flex-column gap-3">
+                                    <div class="p-3 bg-light rounded-3 border-start border-3 border-primary">
+                                        <small class="text-primary fw-bold">16 SEP 2026</small>
+                                        <h6 class="fw-bold mb-1">Mid-Term Practical Schedule</h6>
+                                        <p class="text-muted small mb-0">Physics &amp; AI lab assessments commence next Monday. Check the portal calendar.</p>
+                                    </div>
+                                    <div class="p-3 bg-light rounded-3 border-start border-3 border-success">
+                                        <small class="text-success fw-bold">14 SEP 2026</small>
+                                        <h6 class="fw-bold mb-1">Inter-School Sports Meet</h6>
+                                        <p class="text-muted small mb-0">Athletics team trials will take place at the main arena from 3:30 PM.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 2: ATTENDANCE -->
+                <div id="tab-attendance" class="tab-content-pane d-none">
+                    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                        <h5 class="fw-bold text-primary mb-3"><i class="fa-solid fa-calendar-check me-2"></i>Monthly Attendance Record (September 2026)</h5>
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-4">
+                                <div class="p-3 bg-success bg-opacity-10 text-success rounded-3 text-center">
+                                    <h3 class="fw-bold mb-0">21 Days</h3>
+                                    <small>Present</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3 bg-danger bg-opacity-10 text-danger rounded-3 text-center">
+                                    <h3 class="fw-bold mb-0">1 Day</h3>
+                                    <small>Excused Leave</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3 bg-info bg-opacity-10 text-info rounded-3 text-center">
+                                    <h3 class="fw-bold mb-0">95.4%</h3>
+                                    <small>Total Session Attendance</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-bordered text-center align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                        <th>Check-In Biometric</th>
+                                        <th>Check-Out</th>
+                                        <th>Remarks</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>17 Sep 2026</td><td><span class="badge bg-success">Present</span></td><td>07:55 AM</td><td>02:15 PM</td><td>On Time</td></tr>
+                                    <tr><td>16 Sep 2026</td><td><span class="badge bg-success">Present</span></td><td>07:58 AM</td><td>02:15 PM</td><td>On Time</td></tr>
+                                    <tr><td>15 Sep 2026</td><td><span class="badge bg-success">Present</span></td><td>07:52 AM</td><td>02:15 PM</td><td>On Time</td></tr>
+                                    <tr><td>14 Sep 2026</td><td><span class="badge bg-danger">Leave</span></td><td>-</td><td>-</td><td>Medical Slip Submitted</td></tr>
+                                    <tr><td>13 Sep 2026</td><td><span class="badge bg-success">Present</span></td><td>07:50 AM</td><td>02:15 PM</td><td>On Time</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 3: TIMETABLE -->
+                <div id="tab-timetable" class="tab-content-pane d-none">
+                    <div class="card border-0 shadow-sm rounded-4 p-4">
+                        <h5 class="fw-bold text-primary mb-3"><i class="fa-solid fa-clock me-2"></i>Weekly Class Timetable - Grade 10-A</h5>
+                        <div class="table-responsive">
+                            <table class="table table-bordered text-center align-middle">
+                                <thead class="table-primary">
+                                    <tr>
+                                        <th>Day</th>
+                                        <th>08:30 - 09:15</th>
+                                        <th>09:15 - 10:00</th>
+                                        <th>10:15 - 11:00</th>
+                                        <th>11:00 - 11:45</th>
+                                        <th>12:30 - 01:15</th>
+                                        <th>01:15 - 02:00</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="fw-bold table-light">Monday</td>
+                                        <td>Physics</td><td>Maths</td><td>AI Lab</td><td>Chemistry</td><td>English</td><td>Sports</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold table-light">Tuesday</td>
+                                        <td>Chemistry</td><td>Biology</td><td>Maths</td><td>Robotics</td><td>English</td><td>Library</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold table-light">Wednesday</td>
+                                        <td>Maths</td><td>Physics</td><td>Social Science</td><td>AI Lab</td><td>Hindi</td><td>Music</td>
+                                    </tr>
+                                    <tr class="table-info">
+                                        <td class="fw-bold">Thursday (Today)</td>
+                                        <td>Physics Lab</td><td>Maths</td><td>Computer AI</td><td>Chemistry</td><td>English</td><td>Debating</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold table-light">Friday</td>
+                                        <td>Biology</td><td>Chemistry Lab</td><td>Maths</td><td>Social Science</td><td>English</td><td>Swimming</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 4: MARKSHEET -->
+                <div id="tab-academics" class="tab-content-pane d-none">
+                    <div class="card border-0 shadow-sm rounded-4 p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="fw-bold text-primary mb-0"><i class="fa-solid fa-file-lines me-2"></i>Term 1 Examination Marksheet &amp; Performance</h5>
+                            <button class="btn btn-outline-primary btn-sm rounded-pill fw-bold" onclick="alert('Downloading Digital Grade Card PDF...');"><i class="fa-solid fa-download me-1"></i> Download Report Card PDF</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Subject</th>
+                                        <th>Max Marks</th>
+                                        <th>Theory (80)</th>
+                                        <th>Practical/Internal (20)</th>
+                                        <th>Total (100)</th>
+                                        <th>Grade</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Mathematics (Standard)</strong></td><td>100</td><td>76</td><td>20</td><td><strong class="text-success">96</strong></td><td><span class="badge bg-success">A1</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Physics &amp; Chemistry</strong></td><td>100</td><td>72</td><td>19</td><td><strong class="text-success">91</strong></td><td><span class="badge bg-success">A1</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Computer Applications &amp; AI</strong></td><td>100</td><td>78</td><td>20</td><td><strong class="text-success">98</strong></td><td><span class="badge bg-success">A1</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>English Language &amp; Lit</strong></td><td>100</td><td>70</td><td>18</td><td><strong class="text-primary">88</strong></td><td><span class="badge bg-primary">A2</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Social Sciences</strong></td><td>100</td><td>71</td><td>19</td><td><strong class="text-primary">90</strong></td><td><span class="badge bg-success">A1</span></td>
+                                    </tr>
+                                </tbody>
+                                <tfoot class="table-light fw-bold">
+                                    <tr>
+                                        <td colspan="4">Overall Percentage &amp; SGPA</td>
+                                        <td class="text-success">92.6%</td>
+                                        <td><span class="badge bg-success px-3">Distinction (Rank 3)</span></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 5: FEES & PAYMENTS -->
+                <div id="tab-fees" class="tab-content-pane d-none">
+                    <div class="card border-0 shadow-sm rounded-4 p-4">
+                        <h5 class="fw-bold text-primary mb-3"><i class="fa-solid fa-credit-card me-2"></i>Fee Payment Gateway &amp; History</h5>
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <div class="p-4 bg-light rounded-4 border">
+                                    <h6 class="fw-bold mb-2">Quarter 2 Installment (Session 2026-27)</h6>
+                                    <p class="text-muted small">Due Date: 15 October 2026</p>
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <span class="text-muted">Total Payable Amount:</span>
+                                        <h3 class="fw-bold text-primary mb-0">₹16,250</h3>
+                                    </div>
+                                    <button class="btn btn-primary-custom w-100 rounded-pill fw-bold py-2" onclick="simulateFeePayment()">
+                                        <i class="fa-solid fa-lock me-2"></i> Pay Now via Razorpay / UPI
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-4 bg-light rounded-4 border">
+                                    <h6 class="fw-bold mb-2">Past Invoices &amp; Receipts</h6>
+                                    <ul class="list-unstyled small mb-0">
+                                        <li class="d-flex justify-content-between py-2 border-bottom">
+                                            <span>Q1 Tuition &amp; Lab (Apr - Jun)</span>
+                                            <span class="badge bg-success">₹16,250 Paid</span>
+                                            <a href="#" onclick="alert('Receipt #VIC-2026-Q1 downloaded successfully.')" class="text-primary text-decoration-none fw-bold"><i class="fa-solid fa-download"></i> Receipt</a>
+                                        </li>
+                                        <li class="d-flex justify-content-between py-2 border-bottom">
+                                            <span>Annual Kit &amp; Smart ERP Fee</span>
+                                            <span class="badge bg-success">₹5,000 Paid</span>
+                                            <a href="#" onclick="alert('Receipt #VIC-2026-AN downloaded successfully.')" class="text-primary text-decoration-none fw-bold"><i class="fa-solid fa-download"></i> Receipt</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 6: HOMEWORK & TASKS -->
+                <div id="tab-assignments" class="tab-content-pane d-none">
+                    <div class="card border-0 shadow-sm rounded-4 p-4">
+                        <h5 class="fw-bold text-primary mb-3"><i class="fa-solid fa-book me-2"></i>Homework &amp; Project Tasks</h5>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Subject</th>
+                                        <th>Assignment Title</th>
+                                        <th>Due Date</th>
+                                        <th>Teacher</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Computer Science</strong></td>
+                                        <td>Python Object Oriented School Management Script</td>
+                                        <td><span class="badge bg-danger">20 Sep 2026</span></td>
+                                        <td>Mr. Manish Gupta</td>
+                                        <td><button class="btn btn-sm btn-primary-custom rounded-pill" onclick="alert('Assignment submitted to Mr. Manish Gupta successfully!')">Upload Solution</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Physics</strong></td>
+                                        <td>Electromagnetic Induction Lab Report &amp; Diagrams</td>
+                                        <td><span class="badge bg-warning text-dark">22 Sep 2026</span></td>
+                                        <td>Dr. S. K. Verma</td>
+                                        <td><button class="btn btn-sm btn-outline-primary rounded-pill" onclick="alert('Assignment submitted successfully!')">Upload Solution</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 7: NOTICES -->
+                <div id="tab-notices" class="tab-content-pane d-none">
+                    <div class="card border-0 shadow-sm rounded-4 p-4">
+                        <h5 class="fw-bold text-primary mb-3"><i class="fa-solid fa-bullhorn me-2"></i>All School Circulars &amp; Updates</h5>
+                        <div class="list-group">
+                            <div class="list-group-item list-group-item-action p-3">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1 fw-bold text-primary">Annual Robotics &amp; AI Exhibition Session 2026</h6>
+                                    <small class="text-muted">3 days ago</small>
+                                </div>
+                                <p class="mb-1 text-muted small">Registrations for class 6th to 12th science models are open. Cash prizes for winning innovations.</p>
+                            </div>
+                            <div class="list-group-item list-group-item-action p-3">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1 fw-bold text-primary">Parent-Teacher Association (PTA) General Body Meet</h6>
+                                    <small class="text-muted">1 week ago</small>
+                                </div>
+                                <p class="mb-1 text-muted small">Scheduled for Saturday, 28th September from 9:00 AM to 1:00 PM in the main auditorium.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content-pane').forEach(p => p.classList.add('d-none'));
+            document.querySelectorAll('.erp-nav-item').forEach(n => n.classList.remove('active'));
+            
+            const target = document.getElementById('tab-' + tabId);
+            if(target) target.classList.remove('d-none');
+            event.currentTarget.classList.add('active');
+        }
+
+        function changeRoleDemo(role) {
+            const nameEl = document.getElementById('sidebarName');
+            const badgeEl = document.getElementById('sidebarRoleBadge');
+            const avatarEl = document.getElementById('sidebarAvatar');
+
+            if(role === 'Teacher') {
+                nameEl.innerText = 'Mr. Manish Kumar Gupta';
+                badgeEl.innerText = 'Senior Faculty (CS / AI)';
+                avatarEl.src = 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=200&auto=format&fit=crop';
+            } else if(role === 'Parent') {
+                nameEl.innerText = 'Vikram Sharma';
+                badgeEl.innerText = 'Parent of Aarav (10-A)';
+                avatarEl.src = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop';
+            } else if(role === 'Admin') {
+                nameEl.innerText = 'Dr. Rajesh Sharma';
+                badgeEl.innerText = 'Super Admin / Principal';
+                avatarEl.src = 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=200&auto=format&fit=crop';
+            } else {
+                nameEl.innerText = 'Aarav Sharma';
+                badgeEl.innerText = 'Student (Grade 10-A)';
+                avatarEl.src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop';
+            }
+        }
+
+        function simulateFeePayment() {
+            alert('Initiating Secure Payment Gateway...\n\nTransaction of ₹16,250 successful!\nReceipt ID: #VIC-2026-Q2-8821.\nStatus updated on Cloud ERP.');
+        }
+
+        // Auto detect role from URL
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const role = urlParams.get('role');
+            if(role) {
+                const selectEl = document.getElementById('roleDemoSelect');
+                if(selectEl) {
+                    selectEl.value = role;
+                    changeRoleDemo(role);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
