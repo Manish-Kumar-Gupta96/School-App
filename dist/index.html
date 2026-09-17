@@ -284,6 +284,341 @@
         </div>
     </section>
 
+    <!-- Interactive Virtual Campus 360 Showcase -->
+    <section class="py-5 bg-light">
+        <div class="container py-4">
+            <div class="text-center mb-4">
+                <span class="badge-pill bg-primary text-white mb-2">360° Visual Experience</span>
+                <h2 class="display-6 fw-bold">Explore Our World-Class Campus</h2>
+                <p class="text-muted">Click on a facility tab below to take an interactive virtual tour of our grounds.</p>
+            </div>
+
+            <!-- Campus Tour Tabs -->
+            <div class="d-flex justify-content-center flex-wrap gap-2 mb-4">
+                <button class="btn btn-primary-custom btn-sm px-4 rounded-pill tour-btn active" onclick="switchTour('smartclass', this)"><i class="fa-solid fa-chalkboard-user me-1"></i> Smart Classrooms</button>
+                <button class="btn btn-outline-secondary btn-sm px-4 rounded-pill tour-btn" onclick="switchTour('ailab', this)"><i class="fa-solid fa-microchip me-1"></i> AI &amp; Robotics Hub</button>
+                <button class="btn btn-outline-secondary btn-sm px-4 rounded-pill tour-btn" onclick="switchTour('sports', this)"><i class="fa-solid fa-futbol me-1"></i> Sports &amp; Pool</button>
+                <button class="btn btn-outline-secondary btn-sm px-4 rounded-pill tour-btn" onclick="switchTour('library', this)"><i class="fa-solid fa-book-bookmark me-1"></i> Knowledge Library</button>
+            </div>
+
+            <!-- Tour Viewer Display -->
+            <div class="card glass-card border-0 overflow-hidden shadow-lg">
+                <div class="row g-0 align-items-center">
+                    <div class="col-lg-7">
+                        <img src="https://images.unsplash.com/photo-1580582932707-520aed937b7b?q=80&w=1200&auto=format&fit=crop" id="tourImage" class="img-fluid w-100" style="height: 380px; object-fit: cover;" alt="Campus Facility">
+                    </div>
+                    <div class="col-lg-5 p-4 p-md-5">
+                        <span class="badge bg-warning text-dark px-3 py-1 rounded-pill fw-bold mb-2" id="tourBadge">Interactive Learning</span>
+                        <h3 class="fw-bold mb-3" id="tourTitle">Smart 4K Interactive Classrooms</h3>
+                        <p class="text-muted small mb-4" id="tourDesc">
+                            Each classroom is equipped with cutting-edge touch displays, personalized high-speed Wi-Fi, ergonomic seating, and acoustic sound insulation designed for optimal student engagement.
+                        </p>
+                        <ul class="list-unstyled small text-muted mb-4" id="tourPoints">
+                            <li><i class="fa-solid fa-check text-success me-2"></i> 75" 4K Interactive Touch Panels</li>
+                            <li><i class="fa-solid fa-check text-success me-2"></i> Climate Controlled AC Environment</li>
+                            <li><i class="fa-solid fa-check text-success me-2"></i> 100% CCTV Surveillance for Safety</li>
+                        </ul>
+                        <a href="facilities.html" class="btn btn-primary-custom btn-sm px-4 rounded-pill">View All Infrastructure <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Wall of Fame & Academic Toppers -->
+    <section class="py-5">
+        <div class="container py-4">
+            <div class="text-center mb-5">
+                <span class="badge-pill bg-warning text-dark mb-2">Excellence in Numbers</span>
+                <h2 class="display-6 fw-bold">CBSE Board Toppers &amp; Wall of Fame</h2>
+                <p class="text-muted">Celebrating the outstanding academic distinctions of our star achievers.</p>
+            </div>
+
+            <div class="row g-4">
+                <!-- Topper 1 -->
+                <div class="col-md-6 col-lg-3 text-center">
+                    <div class="card h-100 glass-card border-0 p-4">
+                        <div class="position-relative d-inline-block mx-auto mb-3">
+                            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400&auto=format&fit=crop" class="rounded-circle shadow" style="width: 110px; height: 110px; object-fit: cover; border: 4px solid #ff9800;" alt="Topper">
+                            <span class="badge bg-danger position-absolute bottom-0 end-0 rounded-pill px-2 py-1 small">Rank 1</span>
+                        </div>
+                        <h5 class="fw-bold mb-1">Ananya Singhal</h5>
+                        <p class="text-primary fw-bold mb-1">99.2% (CBSE Class 12 - PCM)</p>
+                        <small class="text-muted mb-3 d-block">Admitted to IIT Delhi (Computer Science)</small>
+                    </div>
+                </div>
+
+                <!-- Topper 2 -->
+                <div class="col-md-6 col-lg-3 text-center">
+                    <div class="card h-100 glass-card border-0 p-4">
+                        <div class="position-relative d-inline-block mx-auto mb-3">
+                            <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=400&auto=format&fit=crop" class="rounded-circle shadow" style="width: 110px; height: 110px; object-fit: cover; border: 4px solid #0d47a1;" alt="Topper">
+                            <span class="badge bg-primary position-absolute bottom-0 end-0 rounded-pill px-2 py-1 small">Rank 2</span>
+                        </div>
+                        <h5 class="fw-bold mb-1">Rohan Mehta</h5>
+                        <p class="text-primary fw-bold mb-1">98.8% (CBSE Class 12 - Commerce)</p>
+                        <small class="text-muted mb-3 d-block">Admitted to SRCC, Delhi University</small>
+                    </div>
+                </div>
+
+                <!-- Topper 3 -->
+                <div class="col-md-6 col-lg-3 text-center">
+                    <div class="card h-100 glass-card border-0 p-4">
+                        <div class="position-relative d-inline-block mx-auto mb-3">
+                            <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=400&auto=format&fit=crop" class="rounded-circle shadow" style="width: 110px; height: 110px; object-fit: cover; border: 4px solid #00c853;" alt="Topper">
+                            <span class="badge bg-success position-absolute bottom-0 end-0 rounded-pill px-2 py-1 small">Rank 3</span>
+                        </div>
+                        <h5 class="fw-bold mb-1">Priya Sharma</h5>
+                        <p class="text-primary fw-bold mb-1">98.6% (CBSE Class 12 - PCB)</p>
+                        <small class="text-muted mb-3 d-block">Admitted to AIIMS New Delhi</small>
+                    </div>
+                </div>
+
+                <!-- Topper 4 -->
+                <div class="col-md-6 col-lg-3 text-center">
+                    <div class="card h-100 glass-card border-0 p-4">
+                        <div class="position-relative d-inline-block mx-auto mb-3">
+                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=400&auto=format&fit=crop" class="rounded-circle shadow" style="width: 110px; height: 110px; object-fit: cover; border: 4px solid #ff9800;" alt="Topper">
+                            <span class="badge bg-warning text-dark position-absolute bottom-0 end-0 rounded-pill px-2 py-1 small">Rank 1</span>
+                        </div>
+                        <h5 class="fw-bold mb-1">Kabir Roy</h5>
+                        <p class="text-primary fw-bold mb-1">99.4% (CBSE Class 10)</p>
+                        <small class="text-muted mb-3 d-block">State Level Math Olympiad Gold Medalist</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive House System Leaderboard -->
+    <section class="py-5 bg-light">
+        <div class="container py-4">
+            <div class="text-center mb-5">
+                <span class="badge-pill bg-danger text-white mb-2">School House Championship 2026</span>
+                <h2 class="display-6 fw-bold">Inter-House Standing &amp; Points Table</h2>
+                <p class="text-muted">Fostering teamwork, competitive spirit, and athletic sportsmanship.</p>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-3">
+                    <div class="card glass-card border-0 p-4 border-top border-4 border-danger">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="fw-bold text-danger mb-0"><i class="fa-solid fa-fire me-2"></i>Agni House</h5>
+                            <span class="badge bg-danger">Leader</span>
+                        </div>
+                        <h2 class="fw-bold text-dark my-2">1,480 <span class="small fs-6 text-muted">pts</span></h2>
+                        <div class="progress mb-2" style="height: 8px;">
+                            <div class="progress-bar bg-danger" style="width: 95%;"></div>
+                        </div>
+                        <small class="text-muted">Captains: Aarav &amp; Riya (12-A)</small>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="card glass-card border-0 p-4 border-top border-4 border-success">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="fw-bold text-success mb-0"><i class="fa-solid fa-seedling me-2"></i>Prithvi House</h5>
+                            <span class="badge bg-success">2nd Place</span>
+                        </div>
+                        <h2 class="fw-bold text-dark my-2">1,390 <span class="small fs-6 text-muted">pts</span></h2>
+                        <div class="progress mb-2" style="height: 8px;">
+                            <div class="progress-bar bg-success" style="width: 88%;"></div>
+                        </div>
+                        <small class="text-muted">Captains: Varun &amp; Sneha (12-B)</small>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="card glass-card border-0 p-4 border-top border-4 border-primary">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="fw-bold text-primary mb-0"><i class="fa-solid fa-water me-2"></i>Jal House</h5>
+                            <span class="badge bg-primary">3rd Place</span>
+                        </div>
+                        <h2 class="fw-bold text-dark my-2">1,320 <span class="small fs-6 text-muted">pts</span></h2>
+                        <div class="progress mb-2" style="height: 8px;">
+                            <div class="progress-bar bg-primary" style="width: 82%;"></div>
+                        </div>
+                        <small class="text-muted">Captains: Ishaan &amp; Tanya (12-C)</small>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="card glass-card border-0 p-4 border-top border-4 border-warning">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="fw-bold text-warning mb-0"><i class="fa-solid fa-wind me-2"></i>Vayu House</h5>
+                            <span class="badge bg-warning text-dark">4th Place</span>
+                        </div>
+                        <h2 class="fw-bold text-dark my-2">1,270 <span class="small fs-6 text-muted">pts</span></h2>
+                        <div class="progress mb-2" style="height: 8px;">
+                            <div class="progress-bar bg-warning" style="width: 78%;"></div>
+                        </div>
+                        <small class="text-muted">Captains: Aryan &amp; Diya (12-D)</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Upcoming Events Calendar -->
+    <section class="py-5">
+        <div class="container py-4">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-5">
+                    <span class="badge-pill bg-primary text-white mb-2">Save the Date</span>
+                    <h2 class="display-6 fw-bold mb-3">Upcoming Campus Events &amp; Celebrations</h2>
+                    <p class="text-muted">Stay tuned for dynamic co-curricular competitions, science expos, and cultural carnivals taking place this semester.</p>
+                    <a href="gallery.html" class="btn btn-outline-primary rounded-pill px-4 fw-bold">Explore Past Event Gallery <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                </div>
+                <div class="col-lg-7">
+                    <div class="d-flex flex-column gap-3">
+                        <div class="p-3 glass-card border-0 rounded-4 d-flex align-items-center gap-3">
+                            <div class="bg-primary text-white text-center p-3 rounded-3 flex-shrink-0" style="min-width: 70px;">
+                                <h4 class="fw-bold mb-0">28</h4>
+                                <small class="text-uppercase fw-bold">SEP</small>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-1">State Inter-School Robotics &amp; AI Championship 2026</h6>
+                                <p class="text-muted small mb-0"><i class="fa-solid fa-clock me-1"></i> 09:00 AM - 04:00 PM &nbsp; | &nbsp; <i class="fa-solid fa-location-dot me-1"></i> Central Auditorium</p>
+                            </div>
+                        </div>
+                        <div class="p-3 glass-card border-0 rounded-4 d-flex align-items-center gap-3">
+                            <div class="bg-success text-white text-center p-3 rounded-3 flex-shrink-0" style="min-width: 70px;">
+                                <h4 class="fw-bold mb-0">12</h4>
+                                <small class="text-uppercase fw-bold">OCT</small>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-1">Annual Inter-House Track &amp; Field Athletics Meet</h6>
+                                <p class="text-muted small mb-0"><i class="fa-solid fa-clock me-1"></i> 08:00 AM - 02:00 PM &nbsp; | &nbsp; <i class="fa-solid fa-location-dot me-1"></i> Olympic Sports Turf</p>
+                            </div>
+                        </div>
+                        <div class="p-3 glass-card border-0 rounded-4 d-flex align-items-center gap-3">
+                            <div class="bg-warning text-dark text-center p-3 rounded-3 flex-shrink-0" style="min-width: 70px;">
+                                <h4 class="fw-bold mb-0">05</h4>
+                                <small class="text-uppercase fw-bold">NOV</small>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-1">Grand Annual Cultural Fest "Tarang 2026"</h6>
+                                <p class="text-muted small mb-0"><i class="fa-solid fa-clock me-1"></i> 05:00 PM - 09:30 PM &nbsp; | &nbsp; <i class="fa-solid fa-location-dot me-1"></i> Open Air Amphitheatre</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Parent & Alumni Testimonials -->
+    <section class="py-5 bg-light">
+        <div class="container py-4">
+            <div class="text-center mb-5">
+                <span class="badge-pill bg-success text-white mb-2">Community Voices</span>
+                <h2 class="display-6 fw-bold">What Parents &amp; Alumni Say</h2>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card h-100 glass-card border-0 p-4">
+                        <div class="text-warning mb-3">
+                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                        </div>
+                        <p class="text-muted small mb-4">
+                            "The individual mentorship and robotics curriculum at VIC School gave my son immense confidence. The real-time ERP portal keeps us updated on every single attendance and test mark effortlessly!"
+                        </p>
+                        <div class="d-flex align-items-center gap-3 mt-auto">
+                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop" class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
+                            <div>
+                                <h6 class="fw-bold mb-0">Dr. Vikram Sharma</h6>
+                                <small class="text-muted">Parent of Aarav (Grade 10)</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 glass-card border-0 p-4">
+                        <div class="text-warning mb-3">
+                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                        </div>
+                        <p class="text-muted small mb-4">
+                            "The faculty here doesn't just prepare you for board exams; they nurture critical thinking and values. My transition to IIT Delhi was smooth thanks to the rigorous STEM foundation here."
+                        </p>
+                        <div class="d-flex align-items-center gap-3 mt-auto">
+                            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop" class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
+                            <div>
+                                <h6 class="fw-bold mb-0">Ananya Singhal</h6>
+                                <small class="text-muted">Alumna (Batch of 2025) • IIT Delhi</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 glass-card border-0 p-4">
+                        <div class="text-warning mb-3">
+                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                        </div>
+                        <p class="text-muted small mb-4">
+                            "From swimming training to AI labs and safe GPS bus transport, VIC provides a complete ecosystem for holistic child development. Truly the finest school in Greater Noida."
+                        </p>
+                        <div class="d-flex align-items-center gap-3 mt-auto">
+                            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=200&auto=format&fit=crop" class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
+                            <div>
+                                <h6 class="fw-bold mb-0">Rajiv Malhotra</h6>
+                                <small class="text-muted">Parent of Diya (Grade 6)</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Accordion -->
+    <section class="py-5">
+        <div class="container py-4">
+            <div class="text-center mb-5">
+                <span class="badge-pill bg-info text-dark mb-2">Got Questions?</span>
+                <h2 class="display-6 fw-bold">Frequently Asked Questions</h2>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="accordion accordion-flush" id="schoolFaqAccordion">
+                        <div class="accordion-item glass-card mb-3 border-0 rounded-3 overflow-hidden shadow-sm">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                    What is the admission procedure for Session 2026-27?
+                                </button>
+                            </h2>
+                            <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#schoolFaqAccordion">
+                                <div class="accordion-body text-muted small">
+                                    Parents can apply online via our Admissions portal or visit the campus admission desk. Following registration, an informal interaction (Pre-Primary) or a baseline readiness test (Grades 1-11) is scheduled.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item glass-card mb-3 border-0 rounded-3 overflow-hidden shadow-sm">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                    What are the transport routes and safety measures?
+                                </button>
+                            </h2>
+                            <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#schoolFaqAccordion">
+                                <div class="accordion-body text-muted small">
+                                    Our fleet of 40+ GPS-enabled AC buses covers Greater Noida, Noida, and adjoining Delhi NCR regions. Every bus has a verified female attendant, speed governors, and CCTV cameras with live tracking for parents on our ERP mobile application.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item glass-card mb-3 border-0 rounded-3 overflow-hidden shadow-sm">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                    Can parents track daily attendance and pay fees online?
+                                </button>
+                            </h2>
+                            <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#schoolFaqAccordion">
+                                <div class="accordion-body text-muted small">
+                                    Yes! VIC School features a dedicated Cloud ERP management portal where parents can view daily biometric attendance, marks, class timetables, and make instant secure fee payments with downloadable GST receipts.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Live Cloud ERP Showcase CTA -->
     <section class="py-5" style="background: linear-gradient(135deg, #072d6b, #0d47a1); color: #fff;">
         <div class="container py-4 text-center">
@@ -331,6 +666,8 @@
                         <li><a href="about.html" class="footer-link">About VIC</a></li>
                         <li><a href="academics.html" class="footer-link">Academic Wings</a></li>
                         <li><a href="facilities.html" class="footer-link">Infrastructure</a></li>
+                        <li><a href="elibrary.html" class="footer-link">Digital E-Library</a></li>
+                        <li><a href="career.html" class="footer-link">Careers &amp; Faculty</a></li>
                         <li><a href="gallery.html" class="footer-link">Photo Gallery</a></li>
                     </ul>
                 </div>
@@ -338,7 +675,7 @@
                     <h6 class="text-white fw-bold text-uppercase mb-3">Admissions</h6>
                     <ul class="list-unstyled small">
                         <li><a href="admissions.html" class="footer-link">Admission Guide</a></li>
-                        <li><a href="admissions.html#fee-structure" class="footer-link">Fee Structure</a></li>
+                        <li><a href="admissions.html#apply-form" class="footer-link">Fee Structure &amp; Calculator</a></li>
                         <li><a href="admissions.html#apply-form" class="footer-link">Online Application</a></li>
                         <li><a href="login.html" class="footer-link">Student Portal</a></li>
                         <li><a href="dashboard.html" class="footer-link">ERP Dashboard</a></li>
@@ -365,5 +702,55 @@
 
     <!-- Bootstrap Bundle JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const tourData = {
+            smartclass: {
+                img: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?q=80&w=1200&auto=format&fit=crop',
+                badge: 'Interactive Learning',
+                title: 'Smart 4K Interactive Classrooms',
+                desc: 'Each classroom is equipped with cutting-edge touch displays, personalized high-speed Wi-Fi, ergonomic seating, and acoustic sound insulation designed for optimal student engagement.',
+                points: ['75" 4K Interactive Touch Panels', 'Climate Controlled AC Environment', '100% CCTV Surveillance for Safety']
+            },
+            ailab: {
+                img: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?q=80&w=1200&auto=format&fit=crop',
+                badge: 'Next-Gen Innovation',
+                title: 'Robotics, IoT & AI Makerspace',
+                desc: 'Advanced maker center where students code micro-controllers, design 3D models, build autonomous drones, and train neural network models using Python.',
+                points: ['3D Printers & PCB Prototyping Benches', 'Arduino & Raspberry Pi Workstations', 'National Robotics Competition Arena']
+            },
+            sports: {
+                img: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1200&auto=format&fit=crop',
+                badge: 'Athletic Excellence',
+                title: 'Olympic Sports Turf & Aquatic Center',
+                desc: 'Full-size FIFA-standard football grass turf, all-weather synthetic basketball courts, 6-lane badminton arena, and heated semi-Olympic swimming pool.',
+                points: ['Semi-Olympic Heated Swimming Pool', 'NIS-Certified Professional Coaches', 'Floodlit Night Sports Practice Turf']
+            },
+            library: {
+                img: 'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?q=80&w=1200&auto=format&fit=crop',
+                badge: 'Knowledge Hub',
+                title: 'Central Digital Knowledge Repository',
+                desc: 'Over 35,000 physical volumes, international journals, digital e-book reading stations, and silent study chambers for board examinees and Olympiad aspirants.',
+                points: ['35,000+ Curated Academic Titles', 'Online JSTOR & IEEE Digital Access', 'High-Speed E-Reader Terminals']
+            }
+        };
+
+        function switchTour(key, btn) {
+            document.querySelectorAll('.tour-btn').forEach(b => {
+                b.classList.remove('btn-primary-custom', 'active');
+                b.classList.add('btn-outline-secondary');
+            });
+            btn.classList.remove('btn-outline-secondary');
+            btn.classList.add('btn-primary-custom', 'active');
+
+            const item = tourData[key];
+            if(item) {
+                document.getElementById('tourImage').src = item.img;
+                document.getElementById('tourBadge').innerText = item.badge;
+                document.getElementById('tourTitle').innerText = item.title;
+                document.getElementById('tourDesc').innerText = item.desc;
+                document.getElementById('tourPoints').innerHTML = item.points.map(p => `<li><i class="fa-solid fa-check text-success me-2"></i> ${p}</li>`).join('');
+            }
+        }
+    </script>
 </body>
 </html>

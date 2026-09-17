@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Library &amp; Digital Study Resources | VIC Public School</title>
+    <meta name="description" content="Access digital textbooks, NCERT e-books, CBSE sample papers, and research archives at VIC Digital Knowledge Repository.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+    <!-- Top Info Bar -->
+    <header class="w-100">
+        <div class="top-infobar d-none d-lg-block">
+            <div class="container d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-4">
+                    <span><i class="fa-solid fa-phone text-warning me-2"></i><strong>Helpline:</strong> <a href="tel:+919876543210">+91 98765 43210</a></span>
+                    <span><i class="fa-solid fa-envelope text-warning me-2"></i><a href="mailto:library@vicschool.edu.in">library@vicschool.edu.in</a></span>
+                    <span><i class="fa-solid fa-location-dot text-warning me-2"></i>Central Digital Knowledge Wing</span>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="badge bg-danger rounded-pill px-3 py-1 shadow-sm"><i class="fa-solid fa-star me-1"></i> Admissions 2026-27 Open</span>
+                    <a href="login.html" class="fw-bold"><i class="fa-solid fa-lock me-1 text-warning"></i> Portal Login</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Notice Ticker -->
+        <div class="notice-ticker">
+            <div class="container d-flex align-items-center">
+                <div class="notice-badge me-3 flex-shrink-0">
+                    <i class="fa-solid fa-book-open"></i> E-RESOURCES
+                </div>
+                <marquee behavior="scroll" direction="left" onmouseover="this.stop();" onmouseout="this.start();" class="text-white-50 small">
+                    📚 CBSE 2026 Sample Question Papers &amp; Marking Schemes now available for Grade 10 &amp; 12. &nbsp; &bull; &nbsp; 
+                    🔬 Science Olympiad preparatory workbooks uploaded to digital carrel.
+                </marquee>
+            </div>
+        </div>
+
+        <!-- Main Navigation Bar -->
+        <nav class="navbar navbar-expand-lg main-navbar sticky-top">
+            <div class="container">
+                <a class="navbar-brand d-flex align-items-center gap-3" href="index.html">
+                    <div class="school-crest">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <div>
+                        <div class="brand-title">VIC PUBLIC SCHOOL</div>
+                        <div class="brand-subtitle"><i class="fa-solid fa-award text-warning me-1"></i>Affiliated to CBSE • Estd. 2001</div>
+                    </div>
+                </a>
+                
+                <button class="navbar-toggler border-0 p-2 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+                    <i class="fa-solid fa-bars-staggered fs-3 text-primary"></i>
+                </button>
+
+                <div class="collapse navbar-collapse" id="mainNavbar">
+                    <ul class="navbar-nav mx-auto mb-2 mb-lg-0 py-2 py-lg-0">
+                        <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="about.html">About Us</a></li>
+                        <li class="nav-item"><a class="nav-link" href="academics.html">Academics</a></li>
+                        <li class="nav-item"><a class="nav-link" href="facilities.html">Facilities</a></li>
+                        <li class="nav-item"><a class="nav-link active" href="elibrary.html">E-Library</a></li>
+                        <li class="nav-item"><a class="nav-link" href="career.html">Careers</a></li>
+                        <li class="nav-item"><a class="nav-link" href="admissions.html">Admissions</a></li>
+                        <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+                    </ul>
+
+                    <div class="d-flex align-items-center gap-2 pt-2 pt-lg-0">
+                        <a href="login.html" class="btn btn-nav-portal"><i class="fa-solid fa-circle-user me-1"></i> Portal</a>
+                        <a href="dashboard.html" class="btn btn-nav-apply"><i class="fa-solid fa-chart-pie me-1"></i> ERP Demo</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Banner -->
+    <div style="background: linear-gradient(135deg, #072d6b, #0d47a1); color: #fff; padding: 60px 0;">
+        <div class="container text-center">
+            <span class="badge bg-warning text-dark px-3 py-1 rounded-pill fw-bold mb-2">24/7 Digital Learning Repository</span>
+            <h1 class="display-5 fw-bold mb-2">VIC Digital Knowledge &amp; E-Library</h1>
+            <p class="lead text-white-50 mb-0">Free Online Access to Over 15,000+ E-Books, Sample Papers, and Video Archives</p>
+        </div>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="row justify-content-center mb-5">
+                <div class="col-lg-8">
+                    <div class="input-group shadow-sm p-2 bg-white rounded-pill border">
+                        <span class="input-group-text bg-transparent border-0 ps-3 text-primary fs-5"><i class="fa-solid fa-magnifying-glass"></i></span>
+                        <input type="text" id="libSearch" class="form-control border-0 shadow-none" placeholder="Search by book title, subject, grade (e.g. Physics Class 12, NCERT Maths, PYQ)..." onkeyup="filterBooks()">
+                        <button class="btn btn-primary-custom rounded-pill px-4" onclick="filterBooks()">Search Library</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category Pills -->
+            <div class="d-flex justify-content-center flex-wrap gap-2 mb-5">
+                <button class="btn btn-primary-custom btn-sm px-4 rounded-pill lib-filter active" onclick="filterCategory('all')">All Resources</button>
+                <button class="btn btn-outline-secondary btn-sm px-4 rounded-pill lib-filter" onclick="filterCategory('ncert')">NCERT Textbooks</button>
+                <button class="btn btn-outline-secondary btn-sm px-4 rounded-pill lib-filter" onclick="filterCategory('pyq')">CBSE Board PYQs</button>
+                <button class="btn btn-outline-secondary btn-sm px-4 rounded-pill lib-filter" onclick="filterCategory('stem')">STEM &amp; AI Workbooks</button>
+                <button class="btn btn-outline-secondary btn-sm px-4 rounded-pill lib-filter" onclick="filterCategory('olympiad')">Olympiad Prep</button>
+            </div>
+
+            <!-- E-Books Grid -->
+            <div class="row g-4" id="bookGrid">
+                <!-- Book 1 -->
+                <div class="col-md-6 col-lg-3 book-card ncert" data-title="NCERT Mathematics Class 12 Standard Calculus">
+                    <div class="card h-100 glass-card border-0 p-3">
+                        <div class="p-3 bg-primary bg-opacity-10 rounded-3 text-center mb-3">
+                            <i class="fa-solid fa-calculator display-5 text-primary"></i>
+                        </div>
+                        <span class="badge bg-primary mb-2" style="width: fit-content;">Grade 12</span>
+                        <h6 class="fw-bold mb-1">NCERT Mathematics (Part I &amp; II)</h6>
+                        <small class="text-muted mb-3 d-block">Covers Calculus, Vectors, 3D Geometry &amp; Probability.</small>
+                        <div class="mt-auto d-flex gap-2">
+                            <button class="btn btn-outline-primary btn-sm w-100 rounded-pill" onclick="alert('Opening Digital Reader Viewer...')"><i class="fa-solid fa-eye me-1"></i> Read Online</button>
+                            <button class="btn btn-primary-custom btn-sm w-100 rounded-pill" onclick="alert('Downloading NCERT PDF (24 MB)...')"><i class="fa-solid fa-download me-1"></i> PDF</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Book 2 -->
+                <div class="col-md-6 col-lg-3 book-card pyq" data-title="CBSE Class 12 Physics 10-Year Solved Papers">
+                    <div class="card h-100 glass-card border-0 p-3">
+                        <div class="p-3 bg-success bg-opacity-10 rounded-3 text-center mb-3">
+                            <i class="fa-solid fa-atom display-5 text-success"></i>
+                        </div>
+                        <span class="badge bg-success mb-2" style="width: fit-content;">CBSE Board PYQs</span>
+                        <h6 class="fw-bold mb-1">Physics 10-Year Solved Papers</h6>
+                        <small class="text-muted mb-3 d-block">Chapter-wise solutions with official CBSE marking rubrics.</small>
+                        <div class="mt-auto d-flex gap-2">
+                            <button class="btn btn-outline-primary btn-sm w-100 rounded-pill" onclick="alert('Opening Digital Reader Viewer...')"><i class="fa-solid fa-eye me-1"></i> Read Online</button>
+                            <button class="btn btn-primary-custom btn-sm w-100 rounded-pill" onclick="alert('Downloading Physics PYQ Bundle...')"><i class="fa-solid fa-download me-1"></i> PDF</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Book 3 -->
+                <div class="col-md-6 col-lg-3 book-card stem" data-title="Artificial Intelligence & Python Handbook Grade 9-12">
+                    <div class="card h-100 glass-card border-0 p-3">
+                        <div class="p-3 bg-warning bg-opacity-10 rounded-3 text-center mb-3">
+                            <i class="fa-solid fa-robot display-5 text-warning"></i>
+                        </div>
+                        <span class="badge bg-warning text-dark mb-2" style="width: fit-content;">STEM &amp; AI</span>
+                        <h6 class="fw-bold mb-1">AI &amp; Python Coding Handbook</h6>
+                        <small class="text-muted mb-3 d-block">Hands-on micro-projects in Machine Learning, Pandas &amp; OpenCV.</small>
+                        <div class="mt-auto d-flex gap-2">
+                            <button class="btn btn-outline-primary btn-sm w-100 rounded-pill" onclick="alert('Opening Digital Reader Viewer...')"><i class="fa-solid fa-eye me-1"></i> Read Online</button>
+                            <button class="btn btn-primary-custom btn-sm w-100 rounded-pill" onclick="alert('Downloading Python Code Notebooks...')"><i class="fa-solid fa-download me-1"></i> PDF</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Book 4 -->
+                <div class="col-md-6 col-lg-3 book-card olympiad" data-title="National Science Olympiad NSO Comprehensive Practice Book">
+                    <div class="card h-100 glass-card border-0 p-3">
+                        <div class="p-3 bg-danger bg-opacity-10 rounded-3 text-center mb-3">
+                            <i class="fa-solid fa-trophy display-5 text-danger"></i>
+                        </div>
+                        <span class="badge bg-danger mb-2" style="width: fit-content;">Olympiad Prep</span>
+                        <h6 class="fw-bold mb-1">National Science Olympiad (NSO)</h6>
+                        <small class="text-muted mb-3 d-block">Advanced higher-order reasoning problems &amp; mock exams.</small>
+                        <div class="mt-auto d-flex gap-2">
+                            <button class="btn btn-outline-primary btn-sm w-100 rounded-pill" onclick="alert('Opening Digital Reader Viewer...')"><i class="fa-solid fa-eye me-1"></i> Read Online</button>
+                            <button class="btn btn-primary-custom btn-sm w-100 rounded-pill" onclick="alert('Downloading NSO Mock Pack...')"><i class="fa-solid fa-download me-1"></i> PDF</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container text-center">
+            <h4 class="text-white fw-bold mb-2">🎓 VIC Public School</h4>
+            <div class="small">© 2026 <strong>VIC School</strong>. Developed by <strong><a href="https://github.com/Manish-Kumar-Gupta96" class="text-warning text-decoration-none">Manish Kumar Gupta</a></strong>.</div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function filterCategory(cat) {
+            document.querySelectorAll('.lib-filter').forEach(b => {
+                b.classList.remove('btn-primary-custom', 'active');
+                b.classList.add('btn-outline-secondary');
+            });
+            event.target.classList.remove('btn-outline-secondary');
+            event.target.classList.add('btn-primary-custom', 'active');
+
+            document.querySelectorAll('.book-card').forEach(b => {
+                if(cat === 'all' || b.classList.contains(cat)) {
+                    b.style.display = 'block';
+                } else {
+                    b.style.display = 'none';
+                }
+            });
+        }
+
+        function filterBooks() {
+            const query = document.getElementById('libSearch').value.toLowerCase();
+            document.querySelectorAll('.book-card').forEach(b => {
+                const title = b.getAttribute('data-title').toLowerCase();
+                b.style.display = title.includes(query) ? 'block' : 'none';
+            });
+        }
+    </script>
+</body>
+</html>

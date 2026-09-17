@@ -75,7 +75,10 @@
                     <a class="erp-nav-item" onclick="switchTab('timetable')"><i class="fa-solid fa-clock"></i> Timetable &amp; Classes</a>
                     <a class="erp-nav-item" onclick="switchTab('academics')"><i class="fa-solid fa-file-lines"></i> Marksheet &amp; Grades</a>
                     <a class="erp-nav-item" onclick="switchTab('fees')"><i class="fa-solid fa-credit-card"></i> Fees &amp; Payments</a>
+                    <a class="erp-nav-item" onclick="switchTab('bus')"><i class="fa-solid fa-bus text-warning"></i> Live GPS Bus Tracker</a>
+                    <a class="erp-nav-item" onclick="switchTab('quiz')"><i class="fa-solid fa-laptop-file text-success"></i> Online Quiz &amp; Exam</a>
                     <a class="erp-nav-item" onclick="switchTab('assignments')"><i class="fa-solid fa-book"></i> Homework &amp; Tasks</a>
+                    <a class="erp-nav-item" onclick="switchTab('elib')"><i class="fa-solid fa-book-bookmark text-info"></i> Digital E-Library</a>
                     <a class="erp-nav-item" onclick="switchTab('notices')"><i class="fa-solid fa-bullhorn"></i> Circulars &amp; Alerts</a>
                     <hr class="border-secondary my-3">
                     <a href="index.html" class="erp-nav-item text-danger"><i class="fa-solid fa-arrow-right-from-bracket"></i> Exit to Website</a>
@@ -472,6 +475,154 @@
                     </div>
                 </div>
 
+                <!-- TAB 8: LIVE GPS BUS TRACKER -->
+                <div id="tab-bus" class="tab-content-pane d-none">
+                    <div class="card border-0 shadow-sm rounded-4 p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                            <div>
+                                <h5 class="fw-bold text-warning mb-0"><i class="fa-solid fa-bus me-2"></i>Live GPS School Bus Tracker - Route #14</h5>
+                                <small class="text-muted">Vehicle: UP-16-BX-4092 (Greater Noida Express)</small>
+                            </div>
+                            <span class="badge bg-success px-3 py-2 rounded-pill"><i class="fa-solid fa-satellite-dish me-1"></i> GPS Signal Active</span>
+                        </div>
+
+                        <div class="row g-4 mb-4">
+                            <div class="col-lg-8">
+                                <div class="p-4 bg-dark rounded-4 text-white text-center position-relative overflow-hidden" style="min-height: 280px; background: radial-gradient(circle, #0f2b48 0%, #071326 100%);">
+                                    <div class="position-absolute top-0 start-0 p-3">
+                                        <span class="badge bg-danger animate-pulse">Live Speed: 38 km/h</span>
+                                    </div>
+                                    <div class="my-5">
+                                        <i class="fa-solid fa-map-location-dot display-3 text-warning mb-3"></i>
+                                        <h5 class="fw-bold text-white">Live Geo-Location Simulation</h5>
+                                        <p class="small text-white-50">Approaching: <strong>Alpha II Commercial Belt Stop</strong></p>
+                                    </div>
+                                    <div class="position-absolute bottom-0 start-0 end-0 p-3 bg-dark bg-opacity-75 d-flex justify-content-between align-items-center small">
+                                        <span>Estimated Arrival at Student Stop: <strong class="text-warning">12 Mins (02:42 PM)</strong></span>
+                                        <button class="btn btn-warning btn-sm rounded-pill fw-bold" onclick="alert('Calling Bus Driver (Mr. Rameshwar Yadav - +91 98765 11223)...')"><i class="fa-solid fa-phone me-1"></i> Call Driver</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <h6 class="fw-bold mb-3 text-dark">Route Stoppages &amp; ETA</h6>
+                                <div class="d-flex flex-column gap-2 small">
+                                    <div class="p-2 bg-light rounded border d-flex justify-content-between align-items-center">
+                                        <span>1. School Campus Gate</span>
+                                        <span class="badge bg-success">Departed 02:15 PM</span>
+                                    </div>
+                                    <div class="p-2 bg-light rounded border d-flex justify-content-between align-items-center">
+                                        <span>2. Pari Chowk Metro</span>
+                                        <span class="badge bg-success">Crossed 02:28 PM</span>
+                                    </div>
+                                    <div class="p-2 bg-warning bg-opacity-10 rounded border border-warning d-flex justify-content-between align-items-center fw-bold">
+                                        <span>3. Alpha II (Your Stop)</span>
+                                        <span class="badge bg-warning text-dark">ETA 02:42 PM</span>
+                                    </div>
+                                    <div class="p-2 bg-light rounded border d-flex justify-content-between align-items-center text-muted">
+                                        <span>4. Delta I Roundabout</span>
+                                        <span>ETA 02:55 PM</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 9: ONLINE QUIZ & PRACTICE EXAM -->
+                <div id="tab-quiz" class="tab-content-pane d-none">
+                    <div class="card border-0 shadow-sm rounded-4 p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <h5 class="fw-bold text-success mb-0"><i class="fa-solid fa-laptop-file me-2"></i>Online Quiz &amp; Practice Assessment</h5>
+                                <small class="text-muted">Grade 10 Science &amp; STEM Practice Test</small>
+                            </div>
+                            <span class="badge bg-primary fs-6 px-3 py-2 rounded-pill"><i class="fa-solid fa-clock me-1"></i> Timer: 10:00 mins</span>
+                        </div>
+
+                        <div id="quizContainer">
+                            <div class="p-4 bg-light rounded-4 mb-4 border">
+                                <h6 class="fw-bold mb-3">Question 1 of 3: Which phenomenon explains why the sky appears blue to an observer on Earth?</h6>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="q1" id="q1a" value="wrong">
+                                    <label class="form-check-label small" for="q1a">Total Internal Reflection of sunlight</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="q1" id="q1b" value="correct">
+                                    <label class="form-check-label small" for="q1b">Rayleigh Scattering of shorter blue wavelengths</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="q1" id="q1c" value="wrong">
+                                    <label class="form-check-label small" for="q1c">Atmospheric dispersion through raindrops</label>
+                                </div>
+                            </div>
+
+                            <div class="p-4 bg-light rounded-4 mb-4 border">
+                                <h6 class="fw-bold mb-3">Question 2 of 3: In Python, which data structure stores immutable ordered sequences of elements?</h6>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="q2" id="q2a" value="wrong">
+                                    <label class="form-check-label small" for="q2a">List ([])</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="q2" id="q2b" value="correct">
+                                    <label class="form-check-label small" for="q2b">Tuple (())</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="q2" id="q2c" value="wrong">
+                                    <label class="form-check-label small" for="q2c">Dictionary ({})</label>
+                                </div>
+                            </div>
+
+                            <button class="btn btn-success btn-lg px-5 rounded-pill fw-bold" onclick="submitPracticeQuiz()">
+                                <i class="fa-solid fa-paper-plane me-2"></i> Submit &amp; Evaluate Quiz
+                            </button>
+                        </div>
+
+                        <div id="quizResult" class="alert alert-success d-none mt-4 rounded-4">
+                            <h4 class="fw-bold mb-1"><i class="fa-solid fa-circle-check me-2"></i>Great Job! Your Score: 100% (2 / 2 Correct)</h4>
+                            <p class="small mb-0">Your answers have been verified and recorded to your Continuous Assessment portfolio.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 10: E-LIBRARY IN ERP -->
+                <div id="tab-elib" class="tab-content-pane d-none">
+                    <div class="card border-0 shadow-sm rounded-4 p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="fw-bold text-info mb-0"><i class="fa-solid fa-book-bookmark me-2"></i>Library Borrowing &amp; Reservations</h5>
+                            <a href="elibrary.html" target="_blank" class="btn btn-outline-info btn-sm rounded-pill fw-bold">Open Full E-Library Portal</a>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Book Title</th>
+                                        <th>Author</th>
+                                        <th>Issued Date</th>
+                                        <th>Return Due Date</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Concepts of Physics (Vol 1 &amp; 2)</strong></td>
+                                        <td>Dr. H. C. Verma</td>
+                                        <td>05 Sep 2026</td>
+                                        <td><span class="badge bg-success">25 Sep 2026</span></td>
+                                        <td><button class="btn btn-sm btn-outline-primary rounded-pill" onclick="alert('Book renewed for 14 more days!')">Renew 14 Days</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Artificial Intelligence: A Modern Approach</strong></td>
+                                        <td>Stuart Russell &amp; Peter Norvig</td>
+                                        <td>10 Sep 2026</td>
+                                        <td><span class="badge bg-success">30 Sep 2026</span></td>
+                                        <td><button class="btn btn-sm btn-outline-primary rounded-pill" onclick="alert('Book renewed for 14 more days!')">Renew 14 Days</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
@@ -514,6 +665,19 @@
 
         function simulateFeePayment() {
             alert('Initiating Secure Payment Gateway...\n\nTransaction of ₹16,250 successful!\nReceipt ID: #VIC-2026-Q2-8821.\nStatus updated on Cloud ERP.');
+        }
+
+        function submitPracticeQuiz() {
+            const q1 = document.querySelector('input[name="q1"]:checked');
+            const q2 = document.querySelector('input[name="q2"]:checked');
+            
+            if(!q1 || !q2) {
+                alert('Please answer all questions before submitting the quiz.');
+                return;
+            }
+
+            document.getElementById('quizContainer').classList.add('d-none');
+            document.getElementById('quizResult').classList.remove('d-none');
         }
 
         // Auto detect role from URL
